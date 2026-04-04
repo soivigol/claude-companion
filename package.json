@@ -9,7 +9,7 @@
   "type": "module",
   "main": "main.cjs",
   "scripts": {
-    "build": "esbuild src/renderer.js --bundle --outfile=dist/renderer.js --format=iife --platform=browser --loader:.css=css",
+    "build": "esbuild src/main.js --bundle --outfile=dist/main.js --format=iife --platform=browser --loader:.css=css",
     "start": "npm run build && electron .",
     "dev": "npm run build && electron .",
     "rebuild": "electron-rebuild",
@@ -26,6 +26,7 @@
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
     "chokidar": "^4.0.0",
+    "electron-updater": "^6.8.3",
     "highlight.js": "^11.11.1",
     "node-pty": "^1.0.0"
   },

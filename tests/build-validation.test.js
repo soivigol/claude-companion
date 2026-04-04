@@ -20,7 +20,7 @@ describe('required project files', () => {
     'index.html',
     'package.json',
     'electron-builder.yml',
-    'src/renderer.js',
+    'src/main.js',
     'lib/platform.cjs',
     'lib/git-helpers.cjs',
     'assets/icon.png',
@@ -129,12 +129,10 @@ describe('electron-builder.yml', () => {
 
 describe('main.cjs syntax', () => {
   it('parses without syntax errors', () => {
-    // node --check validates syntax without executing (avoids Electron require errors)
     const result = execSync(
       `node --check "${path.join(ROOT, 'main.cjs')}" 2>&1; echo $?`,
       { cwd: ROOT }
     ).toString().trim();
-    // Exit code 0 means no syntax errors
     expect(result).toBe('0');
   });
 
@@ -157,6 +155,90 @@ describe('main.cjs syntax', () => {
     const content = fs.readFileSync(path.join(ROOT, 'main.cjs'), 'utf-8');
     expect(content).not.toContain('/opt/homebrew/bin');
   });
+
+  it('imports lib/logger.cjs', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'main.cjs'), 'utf-8');
+    expect(content).toContain("require('./lib/logger.cjs')");
+  });
+
+  it('imports lib/window-manager.cjs', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'main.cjs'), 'utf-8');
+    expect(content).toContain("require('./lib/window-manager.cjs')");
+  });
+
+  it('imports lib/terminal-setup.cjs', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'main.cjs'), 'utf-8');
+    expect(content).toContain("require('./lib/terminal-setup.cjs')");
+  });
+
+  it('imports lib/file-watcher.cjs', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'main.cjs'), 'utf-8');
+    expect(content).toContain("require('./lib/file-watcher.cjs')");
+  });
+
+  it('imports lib/ipc-handlers.cjs', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'main.cjs'), 'utf-8');
+    expect(content).toContain("require('./lib/ipc-handlers.cjs')");
+  });
+});
+
+// ============================================================
+// src/ module files exist
+// ============================================================
+
+describe('src/ module files', () => {
+  const coreModules = [
+    'core/api.js',
+    'core/state.js',
+    'core/diff.js',
+    'core/themes-data.js',
+    'core/highlight-setup.js',
+  ];
+
+  const componentModules = [
+    'components/terminal.js',
+    'components/themes.js',
+    'components/file-tree.js',
+    'components/file-viewer.js',
+    'components/viewer.js',
+    'components/commits.js',
+    'components/status.js',
+    'components/resize.js',
+    'components/project.js',
+    'components/update-banner.js',
+  ];
+
+  for (const file of ['main.js', ...coreModules, ...componentModules]) {
+    it(`src/${file} exists`, () => {
+      expect(fs.existsSync(path.join(ROOT, 'src', file))).toBe(true);
+    });
+  }
+
+  it('src/css/styles.css exists', () => {
+    expect(fs.existsSync(path.join(ROOT, 'src', 'css', 'styles.css'))).toBe(true);
+  });
+});
+
+// ============================================================
+// lib/ module files exist
+// ============================================================
+
+describe('lib/ module files', () => {
+  const libModules = [
+    'platform.cjs',
+    'git-helpers.cjs',
+    'logger.cjs',
+    'window-manager.cjs',
+    'terminal-setup.cjs',
+    'file-watcher.cjs',
+    'ipc-handlers.cjs',
+  ];
+
+  for (const file of libModules) {
+    it(`lib/${file} exists`, () => {
+      expect(fs.existsSync(path.join(ROOT, 'lib', file))).toBe(true);
+    });
+  }
 });
 
 // ============================================================
@@ -184,6 +266,18 @@ describe('lib modules', () => {
     expect(typeof git.getFullDiff).toBe('function');
     expect(typeof git.getRecentCommits).toBe('function');
     expect(typeof git.getCommitDiff).toBe('function');
+  });
+
+  it('logger.cjs loads and exports createLogger', () => {
+    const logger = require('../lib/logger.cjs');
+    expect(typeof logger.createLogger).toBe('function');
+  });
+
+  it('window-manager.cjs loads and exports all functions', () => {
+    const wm = require('../lib/window-manager.cjs');
+    expect(typeof wm.getWindowContext).toBe('function');
+    expect(typeof wm.cleanupWindow).toBe('function');
+    expect(typeof wm.createWindow).toBe('function');
   });
 });
 
@@ -225,41 +319,31 @@ describe('index.html', () => {
     expect(html).toContain('</html>');
   });
 
-  it('has platform-specific CSS for header', () => {
-    expect(html).toContain('.platform-darwin .header');
-  });
-
-  it('has default header with non-macOS padding', () => {
-    expect(html).toContain('padding: 0 16px 0 16px');
-  });
-
-  it('has macOS-specific header with 80px padding', () => {
-    expect(html).toContain('padding-left: 80px');
-  });
-
-  it('loads renderer script', () => {
-    expect(html).toContain('./dist/renderer.js');
+  it('loads main script', () => {
+    expect(html).toContain('./dist/main.js');
   });
 });
 
 // ============================================================
-// renderer.js validation
+// src/main.js validation
 // ============================================================
 
-describe('src/renderer.js', () => {
+describe('src/main.js', () => {
   let content;
 
   it('reads without error', () => {
-    content = fs.readFileSync(path.join(ROOT, 'src', 'renderer.js'), 'utf-8');
+    content = fs.readFileSync(path.join(ROOT, 'src', 'main.js'), 'utf-8');
     expect(content).toBeTruthy();
   });
 
   it('adds platform class to body', () => {
-    expect(content).toContain('platform-${api.platform}');
+    expect(content).toContain('platform-${api.platform');
   });
 
-  it('accesses window.companion API', () => {
-    expect(content).toContain('window.companion');
+  it('accesses window.companion API via api module', () => {
+    const apiContent = fs.readFileSync(path.join(ROOT, 'src', 'core', 'api.js'), 'utf-8');
+    expect(apiContent).toContain('window.companion');
+    expect(content).toContain("from './core/api.js'");
   });
 });
 
@@ -312,20 +396,20 @@ describe('icon assets', () => {
 
 describe('renderer build', () => {
   it('builds without errors', () => {
-    execSync('npx esbuild src/renderer.js --bundle --outfile=dist/renderer.js --format=iife --platform=browser --loader:.css=css 2>&1', {
+    execSync('npx esbuild src/main.js --bundle --outfile=dist/main.js --format=iife --platform=browser --loader:.css=css 2>&1', {
       cwd: ROOT,
       timeout: 30000,
     });
-    expect(fs.existsSync(path.join(ROOT, 'dist', 'renderer.js'))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, 'dist', 'main.js'))).toBe(true);
   });
 
   it('renderer bundle is non-empty', () => {
-    const stat = fs.statSync(path.join(ROOT, 'dist', 'renderer.js'));
+    const stat = fs.statSync(path.join(ROOT, 'dist', 'main.js'));
     expect(stat.size).toBeGreaterThan(1000);
   });
 
   it('renderer bundle contains platform class logic', () => {
-    const content = fs.readFileSync(path.join(ROOT, 'dist', 'renderer.js'), 'utf-8');
+    const content = fs.readFileSync(path.join(ROOT, 'dist', 'main.js'), 'utf-8');
     expect(content).toContain('platform-');
   });
 });

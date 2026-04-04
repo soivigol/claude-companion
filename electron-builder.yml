@@ -65,3 +65,8 @@ deb:
     - xdg-utils
     - libatspi2.0-0
     - libuuid1
+
+publish:
+  provider: github
+  owner: soivigol
+  repo: claude-companion

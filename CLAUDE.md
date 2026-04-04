@@ -6,14 +6,22 @@ Claude Companion is a native cross-platform Electron desktop app (macOS, Windows
 
 ## Architecture
 
-- **`main.cjs`** — Electron main process. Per-window state via `windows` Map (each tab/window has its own project root, PTY process, and file watcher). Uses `lib/platform.cjs` for platform abstraction and `lib/git-helpers.cjs` for git/fs operations.
-- **`preload.cjs`** — Context-isolated IPC bridge exposing `window.companion` API to the renderer. Includes `platform` property for CSS-level platform detection.
-- **`src/renderer.js`** — Renderer logic bundled by esbuild. xterm.js terminal, file tree, diff viewer, syntax highlighting (highlight.js), drag-to-terminal, light/dark theme toggle.
-- **`index.html`** — Three-pane layout with all CSS inline. Light and dark theme via `[data-theme]` CSS variables. Platform-specific header padding via `.platform-darwin`.
-- **`lib/platform.cjs`** — Pure functions for shell detection, PATH handling, terminal env, window options, and menu templates. All functions accept platform/env overrides for testability.
-- **`lib/git-helpers.cjs`** — Pure functions for file tree traversal, git status, diffs, commits. All accept `projRoot` as parameter (no global state).
-- **`electron-builder.yml`** — Cross-platform build config. Key: `asarUnpack: node-pty/**` for native module support.
-- **`scripts/fix-package.cjs`** — Legacy post-package fixes for @electron/packager builds (spawn-helper copy, icon replacement). electron-builder handles these automatically.
+- **`main.cjs`** — Electron main process orchestrator. Wires per-window state (`windows` Map), IPC handlers, terminal, and file watcher via lib modules.
+- **`preload.cjs`** — Context-isolated IPC bridge exposing `window.companion` API to the renderer. Includes `platform` property, auto-update channels, and listener cleanup (disposers).
+- **`src/main.js`** — Renderer entry point bundled by esbuild. Imports from `core/` and `components/`, wires cross-module connections, runs init.
+- **`src/core/`** — Shared state, API bridge, pure utilities: `api.js`, `state.js`, `diff.js`, `themes-data.js`, `highlight-setup.js`.
+- **`src/components/`** — UI modules: `terminal.js`, `themes.js`, `file-tree.js`, `file-viewer.js`, `viewer.js`, `commits.js`, `status.js`, `resize.js`, `project.js`, `update-banner.js`.
+- **`src/css/styles.css`** — All application CSS, bundled by esbuild into `dist/main.css`.
+- **`index.html`** — Three-pane layout shell. Light and dark theme via `[data-theme]` CSS variables. CSP meta tag.
+- **`lib/platform.cjs`** — Pure functions for shell detection, PATH handling, terminal env, window options, and menu templates. All accept overrides for testability.
+- **`lib/git-helpers.cjs`** — Pure functions for file tree traversal, git status, diffs, commits. All accept `projRoot` as parameter.
+- **`lib/logger.cjs`** — Debug log factory (`createLogger`).
+- **`lib/window-manager.cjs`** — Window creation, context lookup, cleanup. BrowserWindow injected as parameter.
+- **`lib/ipc-handlers.cjs`** — All IPC handler registration. Dependencies injected.
+- **`lib/terminal-setup.cjs`** — PTY spawn with dependency injection for platform helpers.
+- **`lib/file-watcher.cjs`** — Chokidar watcher setup with debounced updates.
+- **`lib/auto-updater.cjs`** — electron-updater wrapper. Broadcasts update status to all windows. Disabled in dev mode.
+- **`electron-builder.yml`** — Cross-platform build config with GitHub publish. `asarUnpack: node-pty/**`.
 
 ## Commands
 
@@ -23,7 +31,7 @@ npm run rebuild      # Rebuild native modules (node-pty) for Electron
 npm start            # Build renderer + launch in dev mode (DevTools auto-open)
 npm test             # Run all tests (vitest)
 npm run test:watch   # Vitest watch mode
-npm run build        # Bundle src/renderer.js → dist/renderer.js via esbuild
+npm run build        # Bundle src/main.js → dist/main.js via esbuild
 npm run package      # Build for all platforms via electron-builder
 npm run package:mac  # macOS only (.dmg, .zip)
 npm run package:win  # Windows only (.exe)
@@ -32,18 +40,23 @@ npm run package:linux # Linux only (.AppImage, .deb)
 
 ## Key Patterns
 
-- **Per-window isolation**: Each window/tab has independent state (`windows.Map`). IPC handlers use `BrowserWindow.fromWebContents(event.sender)` to route to the correct context.
+- **Per-window isolation**: Each window/tab has independent state (`windows` Map). IPC handlers use `BrowserWindow.fromWebContents(event.sender)` to route to the correct context.
 - **Platform abstraction**: All platform-specific logic is in `lib/platform.cjs` with injectable overrides — never check `process.platform` directly in main.cjs.
+- **Dependency injection**: All lib modules receive dependencies as parameters (no module-level Electron requires) for testability.
 - **Pure git helpers**: `lib/git-helpers.cjs` functions accept `projRoot` as parameter. No global state or singletons.
-- **Testable design**: Platform and git modules are fully testable with vitest. Tests create temp git repos for isolation.
+- **Modular renderer**: Entry point (`src/main.js`) imports core utilities and components, wires cross-module connections. Circular dependencies broken via setter pattern (`setFileSelectHandler`).
+- **Testable design**: Platform, git, diff, logger, and window-manager modules are fully testable with vitest.
 - **Native macOS tabs**: `tabbingIdentifier: 'claude-companion'` on BrowserWindow. Each tab is a separate BrowserWindow with its own renderer process.
 
 ## Testing
 
-Three test suites in `tests/`:
+Six test suites in `tests/`:
 - **`platform.test.js`** — Shell detection, PATH, terminal env, icons, window options, menus (cross-platform assertions)
 - **`git-helpers.test.js`** — File tree, git status, diffs, commits (uses temp git repos)
 - **`build-validation.test.js`** — File existence, package.json validity, icon headers, esbuild output, API surface
+- **`diff.test.js`** — escapeHtml, parseDiff, renderDiff (pure function unit tests)
+- **`logger.test.js`** — createLogger factory (writes to temp files)
+- **`window-manager.test.js`** — getWindowContext, cleanupWindow, createWindow (mock-based)
 
 ## Debug
 

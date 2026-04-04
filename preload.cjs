@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('companion', {
   // Platform info
   platform: process.platform,
+  appVersion: require('./package.json').version,
 
   // Folder picker
   selectFolder: () => ipcRenderer.invoke('select-folder'),
@@ -21,9 +22,31 @@ contextBridge.exposeInMainWorld('companion', {
   terminalInput: (data) => ipcRenderer.send('terminal-input', data),
   terminalResize: (size) => ipcRenderer.send('terminal-resize', size),
   terminalRestart: () => ipcRenderer.send('terminal-restart'),
-  onTerminalOutput: (cb) => ipcRenderer.on('terminal-output', (_, data) => cb(data)),
-  onTerminalExit: (cb) => ipcRenderer.on('terminal-exit', (_, code) => cb(code)),
+  onTerminalOutput: (cb) => {
+    const handler = (_, data) => cb(data);
+    ipcRenderer.on('terminal-output', handler);
+    return () => ipcRenderer.removeListener('terminal-output', handler);
+  },
+  onTerminalExit: (cb) => {
+    const handler = (_, code) => cb(code);
+    ipcRenderer.on('terminal-exit', handler);
+    return () => ipcRenderer.removeListener('terminal-exit', handler);
+  },
 
   // File watcher
-  onFileChange: (cb) => ipcRenderer.on('file-change', (_, data) => cb(data)),
+  onFileChange: (cb) => {
+    const handler = (_, data) => cb(data);
+    ipcRenderer.on('file-change', handler);
+    return () => ipcRenderer.removeListener('file-change', handler);
+  },
+
+  // Auto-update
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  downloadUpdate: () => ipcRenderer.invoke('download-update'),
+  installUpdate: () => ipcRenderer.invoke('install-update'),
+  onUpdateStatus: (cb) => {
+    const handler = (_, data) => cb(data);
+    ipcRenderer.on('update-status', handler);
+    return () => ipcRenderer.removeListener('update-status', handler);
+  },
 });

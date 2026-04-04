@@ -1,0 +1,6 @@
+node_modules/
+release/
+dist/
+assets/icon.iconset/
+*.log
+.DS_Store

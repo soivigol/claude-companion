@@ -1,0 +1,67 @@
+appId: com.claudecompanion.app
+productName: Claude Companion
+copyright: Copyright © 2024 Claude Companion
+
+directories:
+  output: release
+
+files:
+  - "**/*"
+  - "!release"
+  - "!src"
+  - "!.git"
+  - "!assets/icon.iconset"
+
+asar: true
+asarUnpack:
+  - "node_modules/node-pty/**"
+
+mac:
+  category: public.app-category.developer-tools
+  icon: assets/icon.icns
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+    - target: zip
+      arch:
+        - arm64
+        - x64
+
+win:
+  icon: assets/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: assets/icon.ico
+
+linux:
+  icon: assets/icon.png
+  category: Development
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+
+deb:
+  depends:
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - xdg-utils
+    - libatspi2.0-0
+    - libuuid1

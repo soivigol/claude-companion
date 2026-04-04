@@ -1,7 +1,7 @@
 {
   "name": "claude-companion",
   "version": "2.0.0",
-  "description": "Native macOS companion app for Claude Code CLI",
+  "description": "Native cross-platform companion app for Claude Code CLI",
   "type": "module",
   "main": "main.cjs",
   "scripts": {
@@ -9,7 +9,11 @@
     "start": "npm run build && electron .",
     "dev": "npm run build && electron .",
     "rebuild": "electron-rebuild",
-    "package": "npm run build && npx @electron/packager . 'Claude Companion' --platform=darwin --arch=arm64 --icon=assets/icon.icns --out=release --overwrite --ignore='^/(release|assets/icon\\.iconset|src|\\.git)' && node scripts/fix-package.cjs"
+    "package": "npm run build && electron-builder --publish never",
+    "package:mac": "npm run build && electron-builder --mac --publish never",
+    "package:win": "npm run build && electron-builder --win --publish never",
+    "package:linux": "npm run build && electron-builder --linux --publish never",
+    "package:all": "npm run build && electron-builder -mwl --publish never"
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.10.0",
@@ -22,6 +26,7 @@
   "devDependencies": {
     "@electron/rebuild": "^3.7.0",
     "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
     "esbuild": "^0.24.0"
   }
 }

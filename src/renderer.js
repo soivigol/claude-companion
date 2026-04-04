@@ -52,6 +52,9 @@ const LANG_MAP = {
 
 const api = window.companion;
 
+// --- Platform class for CSS ---
+document.body.classList.add(`platform-${api.platform}`);
+
 // --- Themes ---
 
 const THEMES = {

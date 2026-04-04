@@ -1,6 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('companion', {
+  // Platform info
+  platform: process.platform,
+
   // Folder picker
   selectFolder: () => ipcRenderer.invoke('select-folder'),
   openProject: (folderPath) => ipcRenderer.invoke('open-project', folderPath),

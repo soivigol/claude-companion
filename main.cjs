@@ -1,15 +1,20 @@
 const { app, BrowserWindow, ipcMain, dialog, nativeImage, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { execSync } = require('child_process');
 const { watch } = require('chokidar');
+
+const IS_MAC = process.platform === 'darwin';
+const IS_WIN = process.platform === 'win32';
+const IS_LINUX = process.platform === 'linux';
 
 // --- Per-window state ---
 // Each tab/window gets its own project, terminal, and watcher.
 const windows = new Map(); // windowId → { window, ptyProcess, watcher, projectRoot }
 
 // Debug log
-const logFile = path.join(require('os').homedir(), 'cc-debug.log');
+const logFile = path.join(os.homedir(), 'cc-debug.log');
 function log(...args) {
   const msg = `[${new Date().toISOString()}] ${args.join(' ')}\n`;
   fs.appendFileSync(logFile, msg);
@@ -41,7 +46,7 @@ app.whenReady().then(() => {
   setupIPC();
   createWindow();
 
-  if (process.platform === 'darwin') {
+  if (IS_MAC) {
     const iconPath = path.join(__dirname, 'assets', 'icon.png');
     if (fs.existsSync(iconPath)) {
       app.dock.setIcon(nativeImage.createFromPath(iconPath));
@@ -57,8 +62,11 @@ app.on('window-all-closed', () => {
 // --- Menu ---
 
 function setupMenu() {
-  const template = [
-    {
+  const template = [];
+
+  // macOS app menu (only on darwin)
+  if (IS_MAC) {
+    template.push({
       label: app.name,
       submenu: [
         { role: 'about' },
@@ -71,13 +79,16 @@ function setupMenu() {
         { type: 'separator' },
         { role: 'quit' },
       ],
-    },
+    });
+  }
+
+  template.push(
     {
       label: 'File',
       submenu: [
-        { label: 'New Tab', accelerator: 'CmdOrCtrl+T', click: () => createWindow() },
+        { label: 'New Window', accelerator: 'CmdOrCtrl+T', click: () => createWindow() },
         { type: 'separator' },
-        { role: 'close' },
+        ...(IS_MAC ? [{ role: 'close' }] : [{ role: 'quit' }]),
       ],
     },
     {
@@ -96,39 +107,57 @@ function setupMenu() {
       label: 'Window',
       submenu: [
         { role: 'minimize' },
-        { role: 'zoom' },
+        ...(IS_MAC ? [{ role: 'zoom' }] : []),
         { type: 'separator' },
-        { label: 'Show Next Tab', accelerator: 'Ctrl+Tab', selector: 'selectNextTab:' },
-        { label: 'Show Previous Tab', accelerator: 'Ctrl+Shift+Tab', selector: 'selectPreviousTab:' },
-        { type: 'separator' },
-        { role: 'front' },
+        ...(IS_MAC
+          ? [
+              { label: 'Show Next Tab', accelerator: 'Ctrl+Tab', selector: 'selectNextTab:' },
+              { label: 'Show Previous Tab', accelerator: 'Ctrl+Shift+Tab', selector: 'selectPreviousTab:' },
+              { type: 'separator' },
+              { role: 'front' },
+            ]
+          : []),
       ],
     },
-  ];
+  );
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 // --- Window ---
 
+function getAppIcon() {
+  if (IS_WIN) {
+    const icoPath = path.join(__dirname, 'assets', 'icon.ico');
+    if (fs.existsSync(icoPath)) return icoPath;
+  }
+  return path.join(__dirname, 'assets', 'icon.png');
+}
+
 function createWindow() {
-  const win = new BrowserWindow({
+  const windowOptions = {
     width: 1440,
     height: 900,
     minWidth: 900,
     minHeight: 500,
     title: 'Claude Companion',
-    tabbingIdentifier: 'claude-companion',
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 14, y: 14 },
     backgroundColor: '#ffffff',
-    icon: path.join(__dirname, 'assets', 'icon.png'),
+    icon: getAppIcon(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
     },
-  });
+  };
+
+  // macOS-specific window chrome
+  if (IS_MAC) {
+    windowOptions.tabbingIdentifier = 'claude-companion';
+    windowOptions.titleBarStyle = 'hiddenInset';
+    windowOptions.trafficLightPosition = { x: 14, y: 14 };
+  }
+
+  const win = new BrowserWindow(windowOptions);
 
   windows.set(win.id, { window: win, ptyProcess: null, watcher: null, projectRoot: null });
 
@@ -251,6 +280,23 @@ function setupIPC() {
 
 // --- Terminal (node-pty) ---
 
+function getDefaultShell() {
+  if (IS_WIN) return process.env.COMSPEC || 'powershell.exe';
+  return process.env.SHELL || (IS_MAC ? '/bin/zsh' : '/bin/bash');
+}
+
+function getDefaultPath() {
+  const envPath = process.env.PATH || '';
+  if (IS_WIN) return envPath;
+  if (IS_MAC) {
+    const macDefault = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin';
+    return envPath.includes('/usr/local/bin') ? envPath : `${macDefault}:${envPath}`;
+  }
+  // Linux
+  const linuxDefault = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
+  return envPath.includes('/usr/local/bin') ? envPath : `${linuxDefault}:${envPath}`;
+}
+
 function setupTerminal(ctx) {
   let pty;
   try {
@@ -264,12 +310,11 @@ function setupTerminal(ctx) {
     return;
   }
 
-  const shell = '/bin/zsh';
-  const defaultPath = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin';
-  const envPath = process.env.PATH || '';
-  const fullPath = envPath.includes('/usr/local/bin') ? envPath : `${defaultPath}:${envPath}`;
+  const shell = getDefaultShell();
+  const shellArgs = IS_WIN ? [] : ['--login'];
+  const fullPath = getDefaultPath();
 
-  ctx.ptyProcess = pty.spawn(shell, ['--login'], {
+  ctx.ptyProcess = pty.spawn(shell, shellArgs, {
     name: 'xterm-256color',
     cols: 80,
     rows: 24,
@@ -277,10 +322,10 @@ function setupTerminal(ctx) {
     env: {
       ...process.env,
       PATH: fullPath,
-      HOME: process.env.HOME || require('os').homedir(),
+      HOME: process.env.HOME || os.homedir(),
       TERM: 'xterm-256color',
       COLORTERM: 'truecolor',
-      SHELL: shell,
+      ...(IS_WIN ? {} : { SHELL: shell }),
     },
   });
 

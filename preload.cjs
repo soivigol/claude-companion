@@ -1,9 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const path = require('path');
+
+const appVersion = require(path.join(__dirname, 'package.json')).version;
 
 contextBridge.exposeInMainWorld('companion', {
   // Platform info
   platform: process.platform,
-  appVersion: require('./package.json').version,
+  appVersion,
 
   // Folder picker
   selectFolder: () => ipcRenderer.invoke('select-folder'),

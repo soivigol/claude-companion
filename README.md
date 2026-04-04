@@ -2,6 +2,8 @@
 
 A native macOS app to pair with [Claude Code](https://claude.ai/claude-code). Three-pane workspace: file explorer, embedded terminal running Claude Code, and a live diff/file viewer with syntax highlighting.
 
+> **Disclaimer:** This is an independent, unofficial project. It is not made by, endorsed by, or affiliated with Anthropic. "Claude" is a trademark of Anthropic, PBC.
+
 ## Features
 
 - **File explorer** (left pane) — project tree with git status indicators, drag files to the terminal to add them as context

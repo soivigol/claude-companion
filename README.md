@@ -88,12 +88,25 @@ All builds are saved to the `release/` directory:
 ## Project Structure
 
 ```
-main.cjs              Electron main process (per-window state, IPC, node-pty, chokidar)
+main.cjs              Electron main process orchestrator
 preload.cjs           IPC bridge (contextBridge API)
-index.html            Three-pane layout + CSS (light/dark themes, hljs colors)
-src/renderer.js       Renderer logic (xterm.js, file tree, diff viewer, highlight.js)
+index.html            Three-pane layout shell (light/dark themes via CSS variables)
+src/
+  main.js             Renderer entry point (bundled by esbuild)
+  core/               Shared state, API bridge, pure utilities
+  components/         UI modules (terminal, file-tree, viewer, commits, themes…)
+  css/styles.css      All application CSS
+lib/
+  platform.cjs        Shell detection, PATH, terminal env, window/menu options
+  git-helpers.cjs     File tree, git status, diffs, commits (pure functions)
+  ipc-handlers.cjs    All IPC handler registration
+  terminal-setup.cjs  PTY spawn with dependency injection
+  file-watcher.cjs    Chokidar watcher setup
+  window-manager.cjs  Window creation, context lookup, cleanup
+  auto-updater.cjs    electron-updater wrapper
+  logger.cjs          Debug log factory
 scripts/              Post-packaging fixes (spawn-helper, icon)
-assets/               App icons (.icns for macOS, .ico for Windows, .png for Linux)
+assets/               App icons (.icns, .ico, .png)
 electron-builder.yml  Cross-platform build configuration
 ```
 

@@ -4,6 +4,19 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 
 > **Disclaimer:** This is an independent, unofficial project. It is not made by, endorsed by, or affiliated with Anthropic. "Claude" is a trademark of Anthropic, PBC.
 
+## Download
+
+| Platform | Download | Notes |
+|----------|----------|-------|
+| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion-2.0.0-arm64.dmg) | M1/M2/M3/M4 |
+| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion-2.0.0.dmg) | Intel Macs |
+| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion.Setup.2.0.0.exe) | Standard installer |
+| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion.2.0.0.exe) | No install required |
+| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion-2.0.0.AppImage) | Universal |
+| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/claude-companion_2.0.0_amd64.deb) | Debian/Ubuntu |
+
+[All releases](https://github.com/soivigol/claude-companion/releases)
+
 ## Features
 
 - **File explorer** (left pane) — project tree with git status indicators, drag files to the terminal to add them as context

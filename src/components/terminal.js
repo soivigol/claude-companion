@@ -16,6 +16,7 @@ export const term = new Terminal({
   cursorStyle: 'bar',
   scrollback: 10000,
   allowProposedApi: true,
+  macOptionIsMeta: true,
 });
 
 export const fitAddon = new FitAddon();
@@ -31,6 +32,17 @@ export function initTerminal() {
   if (!terminalAttached) {
     // First time: open xterm in the DOM
     term.open(container);
+
+    // Alt+Enter or Shift+Enter: insert newline instead of submit
+    term.attachCustomKeyEventHandler((event) => {
+      if (event.key === 'Enter' && event.type === 'keydown' && (event.altKey || event.shiftKey)) {
+        event.preventDefault();
+        api.terminalInput('\x1b\r');
+        return false;
+      }
+      return true;
+    });
+
     terminalAttached = true;
   }
 

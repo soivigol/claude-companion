@@ -44,11 +44,9 @@ app.whenReady().then(() => {
   spawnWindow();
 
   const updater = setupAutoUpdater({ log, windows });
-  if (updater) {
-    ipcMain.handle('check-for-updates', () => updater.checkForUpdates());
-    ipcMain.handle('download-update', () => updater.downloadUpdate());
-    ipcMain.handle('install-update', () => updater.quitAndInstall());
-  }
+  ipcMain.handle('check-for-updates', () => updater?.checkForUpdates());
+  ipcMain.handle('download-update', () => updater?.downloadUpdate());
+  ipcMain.handle('install-update', () => updater?.quitAndInstall());
 
   if (IS_MAC) {
     const iconPath = path.join(__dirname, 'assets', 'icon.png');

@@ -2,12 +2,18 @@ const { app, BrowserWindow, ipcMain, dialog, nativeImage, Menu } = require('elec
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { execSync } = require('child_process');
 const { watch } = require('chokidar');
 
+const {
+  getDefaultShell, getDefaultPath, getShellArgs, getTerminalEnv,
+  getAppIcon, getWindowOptions, buildMenuTemplate,
+} = require('./lib/platform.cjs');
+const {
+  getFileTree, getGitStatus, getGitDiff, getFullDiff,
+  getRecentCommits, getCommitDiff,
+} = require('./lib/git-helpers.cjs');
+
 const IS_MAC = process.platform === 'darwin';
-const IS_WIN = process.platform === 'win32';
-const IS_LINUX = process.platform === 'linux';
 
 // --- Per-window state ---
 // Each tab/window gets its own project, terminal, and watcher.
@@ -62,101 +68,14 @@ app.on('window-all-closed', () => {
 // --- Menu ---
 
 function setupMenu() {
-  const template = [];
-
-  // macOS app menu (only on darwin)
-  if (IS_MAC) {
-    template.push({
-      label: app.name,
-      submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'services' },
-        { type: 'separator' },
-        { role: 'hide' },
-        { role: 'hideOthers' },
-        { role: 'unhide' },
-        { type: 'separator' },
-        { role: 'quit' },
-      ],
-    });
-  }
-
-  template.push(
-    {
-      label: 'File',
-      submenu: [
-        { label: 'New Window', accelerator: 'CmdOrCtrl+T', click: () => createWindow() },
-        { type: 'separator' },
-        ...(IS_MAC ? [{ role: 'close' }] : [{ role: 'quit' }]),
-      ],
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectAll' },
-      ],
-    },
-    {
-      label: 'Window',
-      submenu: [
-        { role: 'minimize' },
-        ...(IS_MAC ? [{ role: 'zoom' }] : []),
-        { type: 'separator' },
-        ...(IS_MAC
-          ? [
-              { label: 'Show Next Tab', accelerator: 'Ctrl+Tab', selector: 'selectNextTab:' },
-              { label: 'Show Previous Tab', accelerator: 'Ctrl+Shift+Tab', selector: 'selectPreviousTab:' },
-              { type: 'separator' },
-              { role: 'front' },
-            ]
-          : []),
-      ],
-    },
-  );
-
+  const template = buildMenuTemplate(process.platform, app.name, () => createWindow());
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 // --- Window ---
 
-function getAppIcon() {
-  if (IS_WIN) {
-    const icoPath = path.join(__dirname, 'assets', 'icon.ico');
-    if (fs.existsSync(icoPath)) return icoPath;
-  }
-  return path.join(__dirname, 'assets', 'icon.png');
-}
-
 function createWindow() {
-  const windowOptions = {
-    width: 1440,
-    height: 900,
-    minWidth: 900,
-    minHeight: 500,
-    title: 'Claude Companion',
-    backgroundColor: '#ffffff',
-    icon: getAppIcon(),
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
-  };
-
-  // macOS-specific window chrome
-  if (IS_MAC) {
-    windowOptions.tabbingIdentifier = 'claude-companion';
-    windowOptions.titleBarStyle = 'hiddenInset';
-    windowOptions.trafficLightPosition = { x: 14, y: 14 };
-  }
-
+  const windowOptions = getWindowOptions(process.platform, __dirname);
   const win = new BrowserWindow(windowOptions);
 
   windows.set(win.id, { window: win, ptyProcess: null, watcher: null, projectRoot: null });
@@ -280,23 +199,6 @@ function setupIPC() {
 
 // --- Terminal (node-pty) ---
 
-function getDefaultShell() {
-  if (IS_WIN) return process.env.COMSPEC || 'powershell.exe';
-  return process.env.SHELL || (IS_MAC ? '/bin/zsh' : '/bin/bash');
-}
-
-function getDefaultPath() {
-  const envPath = process.env.PATH || '';
-  if (IS_WIN) return envPath;
-  if (IS_MAC) {
-    const macDefault = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin';
-    return envPath.includes('/usr/local/bin') ? envPath : `${macDefault}:${envPath}`;
-  }
-  // Linux
-  const linuxDefault = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
-  return envPath.includes('/usr/local/bin') ? envPath : `${linuxDefault}:${envPath}`;
-}
-
 function setupTerminal(ctx) {
   let pty;
   try {
@@ -311,22 +213,15 @@ function setupTerminal(ctx) {
   }
 
   const shell = getDefaultShell();
-  const shellArgs = IS_WIN ? [] : ['--login'];
-  const fullPath = getDefaultPath();
+  const shellArgs = getShellArgs();
+  const termEnv = getTerminalEnv(shell);
 
   ctx.ptyProcess = pty.spawn(shell, shellArgs, {
     name: 'xterm-256color',
     cols: 80,
     rows: 24,
     cwd: ctx.projectRoot,
-    env: {
-      ...process.env,
-      PATH: fullPath,
-      HOME: process.env.HOME || os.homedir(),
-      TERM: 'xterm-256color',
-      COLORTERM: 'truecolor',
-      ...(IS_WIN ? {} : { SHELL: shell }),
-    },
+    env: termEnv,
   });
 
   log('[main] pty spawned, pid:', ctx.ptyProcess.pid, 'window:', ctx.window.id);
@@ -378,154 +273,4 @@ function setupWatcher(ctx) {
     .on('unlink', debouncedUpdate)
     .on('addDir', debouncedUpdate)
     .on('unlinkDir', debouncedUpdate);
-}
-
-// --- Git / FS helpers (all accept projectRoot as parameter) ---
-
-function getGitRoot(projRoot) {
-  try {
-    return execSync('git rev-parse --show-toplevel', { cwd: projRoot }).toString().trim();
-  } catch {
-    return null;
-  }
-}
-
-function getFileTree(dir, projRoot, depth = 0, maxDepth = 6) {
-  if (depth > maxDepth) return [];
-
-  const ignore = new Set([
-    'node_modules', '.git', '.next', '.cache', '__pycache__',
-    'dist', 'build', '.turbo', '.vercel', '.nuxt', 'vendor',
-    '.wp-cli', 'wp-content/uploads', '.svn', 'coverage',
-  ]);
-
-  let items;
-  try {
-    items = fs.readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-
-  items = items
-    .filter((i) => !i.name.startsWith('.') || i.name === '.claude')
-    .filter((i) => !ignore.has(i.name))
-    .sort((a, b) => {
-      if (a.isDirectory() && !b.isDirectory()) return -1;
-      if (!a.isDirectory() && b.isDirectory()) return 1;
-      return a.name.localeCompare(b.name);
-    });
-
-  const entries = [];
-  for (const item of items) {
-    const fullPath = path.join(dir, item.name);
-    const relativePath = path.relative(projRoot, fullPath);
-
-    if (item.isDirectory()) {
-      entries.push({
-        name: item.name,
-        path: relativePath,
-        type: 'directory',
-        children: getFileTree(fullPath, projRoot, depth + 1, maxDepth),
-      });
-    } else {
-      entries.push({
-        name: item.name,
-        path: relativePath,
-        type: 'file',
-        ext: path.extname(item.name).slice(1),
-      });
-    }
-  }
-
-  return entries;
-}
-
-function getGitStatus(projRoot) {
-  const gitRoot = getGitRoot(projRoot);
-  if (!gitRoot) return { isGit: false, files: [], branch: null };
-
-  try {
-    const branch = execSync('git branch --show-current', { cwd: projRoot }).toString().trim();
-    const raw = execSync('git status --porcelain', { cwd: projRoot }).toString().trim();
-
-    const statusMap = {
-      M: 'modified', A: 'added', D: 'deleted', '??': 'untracked',
-      R: 'renamed', MM: 'modified', AM: 'added', UU: 'conflict',
-    };
-
-    const files = raw.split('\n').filter(Boolean).map((line) => {
-      const status = line.substring(0, 2).trim();
-      return { status, path: line.substring(3), statusLabel: statusMap[status] || 'changed' };
-    });
-
-    return { isGit: true, files, branch };
-  } catch {
-    return { isGit: false, files: [], branch: null };
-  }
-}
-
-function getGitDiff(projRoot, filePath) {
-  if (!getGitRoot(projRoot)) return null;
-  try {
-    let diff = execSync(`git diff --no-color -- "${filePath}"`, {
-      cwd: projRoot, maxBuffer: 5 * 1024 * 1024,
-    }).toString();
-
-    if (!diff) {
-      diff = execSync(`git diff --cached --no-color -- "${filePath}"`, {
-        cwd: projRoot, maxBuffer: 5 * 1024 * 1024,
-      }).toString();
-    }
-
-    if (!diff) {
-      const fullPath = path.join(projRoot, filePath);
-      if (fs.existsSync(fullPath)) {
-        const content = fs.readFileSync(fullPath, 'utf-8');
-        const lines = content.split('\n').map((l) => `+${l}`).join('\n');
-        diff = `--- /dev/null\n+++ b/${filePath}\n@@ -0,0 +1,${content.split('\n').length} @@\n${lines}`;
-      }
-    }
-
-    return diff || null;
-  } catch {
-    return null;
-  }
-}
-
-function getFullDiff(projRoot) {
-  if (!getGitRoot(projRoot)) return null;
-  try {
-    const buf = 10 * 1024 * 1024;
-    let diff = execSync('git diff --no-color', { cwd: projRoot, maxBuffer: buf }).toString();
-    const staged = execSync('git diff --cached --no-color', { cwd: projRoot, maxBuffer: buf }).toString();
-    if (staged) diff = staged + '\n' + diff;
-    return diff || null;
-  } catch {
-    return null;
-  }
-}
-
-function getRecentCommits(projRoot, count = 10) {
-  try {
-    const raw = execSync(
-      `git log --oneline --no-decorate -n ${count} --format="%h|||%s|||%cr|||%an"`,
-      { cwd: projRoot }
-    ).toString().trim();
-    return raw.split('\n').filter(Boolean).map((line) => {
-      const [hash, message, time, author] = line.split('|||');
-      return { hash, message, time, author };
-    });
-  } catch {
-    return [];
-  }
-}
-
-function getCommitDiff(projRoot, hash) {
-  try {
-    return execSync(`git show --no-color ${hash}`, {
-      cwd: projRoot, maxBuffer: 10 * 1024 * 1024,
-    }).toString();
-  } catch {
-    return null;
-  }
 }

@@ -2,6 +2,10 @@
   "name": "claude-companion",
   "version": "2.0.0",
   "description": "Native cross-platform companion app for Claude Code CLI",
+  "author": {
+    "name": "David Viña",
+    "email": "soivigol@gmail.com"
+  },
   "type": "module",
   "main": "main.cjs",
   "scripts": {

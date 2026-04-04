@@ -53,7 +53,9 @@ const LANG_MAP = {
 const api = window.companion;
 
 // --- Platform class for CSS ---
-document.body.classList.add(`platform-${api.platform}`);
+if (document.body) {
+  document.body.classList.add(`platform-${api.platform || 'unknown'}`);
+}
 
 // --- Themes ---
 
@@ -678,7 +680,9 @@ function init() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => {
+    try { init(); } catch (e) { console.error('[CC] init error:', e); }
+  });
 } else {
-  init();
+  try { init(); } catch (e) { console.error('[CC] init error:', e); }
 }

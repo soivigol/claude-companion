@@ -49,7 +49,7 @@ function renderTreeNode(node, depth = 0) {
         : c.children?.some((gc) => state.changedPaths.has(gc?.path))
     );
 
-    return `<div class="tree-item directory" style="padding-left:${12 + indent}px" data-dir="${node.path}">
+    return `<div class="tree-item directory" style="padding-left:${12 + indent}px" data-dir="${node.path}" draggable="true">
       <svg class="chevron ${isOpen ? 'open' : ''}" viewBox="0 0 16 16" fill="currentColor"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
       <span class="name">${node.name}</span>
       ${hasChanges ? '<span class="status-dot modified"></span>' : ''}
@@ -67,6 +67,23 @@ function renderTreeNode(node, depth = 0) {
     <span class="name">${node.name}</span>
     ${changeStatus ? `<span class="status-dot ${changeStatus}"></span>` : ''}
   </div>`;
+}
+
+export function initTreeDrag() {
+  const container = document.getElementById('treeContainer');
+  container.addEventListener('dragstart', (e) => {
+    const fileItem = e.target.closest('[data-file]');
+    if (fileItem) {
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('text/plain', fileItem.dataset.file);
+      return;
+    }
+    const dirItem = e.target.closest('[data-dir]');
+    if (dirItem) {
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('text/plain', dirItem.dataset.dir);
+    }
+  });
 }
 
 export function renderTree() {
@@ -87,12 +104,4 @@ export function renderTree() {
     if (fileItem && fileSelectHandler) fileSelectHandler(fileItem.dataset.file, fileItem.dataset.ext);
   };
 
-  // Drag-and-drop: drag file path from tree to terminal
-  container.addEventListener('dragstart', (e) => {
-    const fileItem = e.target.closest('[data-file]');
-    if (fileItem) {
-      e.dataTransfer.effectAllowed = 'copy';
-      e.dataTransfer.setData('text/plain', fileItem.dataset.file);
-    }
-  });
 }

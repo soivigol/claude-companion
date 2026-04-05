@@ -2,7 +2,7 @@ import { state } from '../core/state.js';
 import { api } from '../core/api.js';
 import { initTerminal, term } from './terminal.js';
 import { initResize } from './resize.js';
-import { renderTree } from './file-tree.js';
+import { renderTree, initTreeDrag } from './file-tree.js';
 import { renderStatus } from './status.js';
 import { switchViewerTab, loadChanges } from './viewer.js';
 
@@ -24,6 +24,7 @@ export async function openProject(folderPath) {
     setTimeout(async () => {
       try {
         initTerminal();
+        initTreeDrag();
         initResize();
 
         const [treeData, statusData] = await Promise.all([

@@ -16,7 +16,6 @@ export const term = new Terminal({
   cursorStyle: 'bar',
   scrollback: 10000,
   allowProposedApi: true,
-  macOptionIsMeta: true,
 });
 
 export const fitAddon = new FitAddon();
@@ -78,13 +77,13 @@ export function initTerminal() {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
       terminalPane.classList.add('drop-active');
-    });
+    }, { capture: true });
 
     terminalPane.addEventListener('dragleave', (e) => {
       if (!terminalPane.contains(e.relatedTarget)) {
         terminalPane.classList.remove('drop-active');
       }
-    });
+    }, { capture: true });
 
     terminalPane.addEventListener('drop', (e) => {
       e.preventDefault();
@@ -94,7 +93,7 @@ export function initTerminal() {
         api.terminalInput(filePath);
         term.focus();
       }
-    });
+    }, { capture: true });
   }
 
   // Fit with multiple retries to handle layout settling

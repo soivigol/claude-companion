@@ -23,8 +23,6 @@ function init() {
   // Apply saved theme
   applyTheme(state.theme);
 
-  const versionEl = document.getElementById('appVersion');
-  if (versionEl && api.appVersion) versionEl.textContent = `v${api.appVersion}`;
 
   initUpdateBanner();
 

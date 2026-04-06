@@ -398,7 +398,7 @@ html, body {
 }
 
 .viewer-panel {
-  flex: 1; overflow-y: auto; overflow-x: hidden;
+  flex: 1; overflow: auto;
 }
 
 .viewer-panel::-webkit-scrollbar { width: 6px; }
@@ -407,7 +407,7 @@ html, body {
 
 /* Diff rendering */
 
-.diff-section { border-bottom: 1px solid var(--border); }
+.diff-section { border-bottom: 1px solid var(--border); width: fit-content; min-width: 100%; }
 
 .diff-file-header {
   display: flex; align-items: center; gap: 8px;
@@ -415,6 +415,7 @@ html, body {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   position: sticky; top: 0; z-index: 2;
+  min-width: 100%;
 }
 
 .diff-file-path {
@@ -439,7 +440,7 @@ html, body {
 }
 
 .diff-line {
-  display: flex; min-height: 19px;
+  display: flex; min-height: 19px; width: fit-content; min-width: 100%;
 }
 
 .diff-line .line-num {
@@ -451,7 +452,7 @@ html, body {
 
 .diff-line .line-content {
   padding: 0 10px; flex: 1;
-  white-space: pre; overflow-x: auto;
+  white-space: pre;
 }
 
 .diff-line.addition { background: var(--green-dim); }
@@ -503,6 +504,7 @@ html, body {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   position: sticky; top: 0; z-index: 2;
+  min-width: 100%;
 }
 
 .file-path {
@@ -515,7 +517,7 @@ html, body {
   font-size: 11.5px; line-height: 19px;
 }
 
-.file-line { display: flex; min-height: 19px; }
+.file-line { display: flex; min-height: 19px; width: fit-content; min-width: 100%; }
 .file-line:hover { background: var(--bg-hover); }
 
 .file-line .line-num {
@@ -528,8 +530,10 @@ html, body {
 .file-line .line-text {
   padding: 0 10px; white-space: pre;
   color: var(--text-secondary); flex: 1;
-  overflow-x: auto;
 }
+
+.file-line.addition { background: var(--green-dim); }
+.file-line.addition .line-num { color: rgba(26, 127, 55, 0.5); }
 
 /* Empty / Loading */
 

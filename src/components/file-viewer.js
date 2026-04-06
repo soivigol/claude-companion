@@ -2,8 +2,19 @@ import { state } from '../core/state.js';
 import { api } from '../core/api.js';
 import { hljs, LANG_MAP } from '../core/highlight-setup.js';
 import { renderTree } from './file-tree.js';
-import { escapeHtml, renderDiff } from '../core/diff.js';
+import { escapeHtml, parseDiff } from '../core/diff.js';
 import { switchViewerTab } from './viewer.js';
+
+function getAddedLines(diffRaw) {
+  const files = parseDiff(diffRaw);
+  const added = new Set();
+  for (const file of files) {
+    for (const line of file.lines) {
+      if (line.type === 'addition' && line.num) added.add(line.num);
+    }
+  }
+  return added;
+}
 
 export async function selectFile(filePath, ext) {
   state.activeFile = filePath;
@@ -13,13 +24,11 @@ export async function selectFile(filePath, ext) {
   fileTab.style.display = '';
   fileTab.querySelector('.tab-name').textContent = filePath.split('/').pop();
 
+  // Get added line numbers from diff if file has changes
+  let addedLines = new Set();
   if (state.changedPaths.has(filePath)) {
     const diff = await api.getDiff(filePath);
-    if (diff) {
-      document.getElementById('filePanel').innerHTML = renderDiff(diff);
-      switchViewerTab('file');
-      return;
-    }
+    if (diff) addedLines = getAddedLines(diff);
   }
 
   const data = await api.getFileContent(filePath);
@@ -43,12 +52,14 @@ export async function selectFile(filePath, ext) {
     html += '<div class="file-viewer">';
     if (highlightedLines) {
       for (let i = 0; i < highlightedLines.length; i++) {
-        html += `<div class="file-line"><span class="line-num">${i + 1}</span><span class="line-text hljs">${highlightedLines[i]}</span></div>`;
+        const lineClass = addedLines.has(i + 1) ? 'file-line addition' : 'file-line';
+        html += `<div class="${lineClass}"><span class="line-num">${i + 1}</span><span class="line-text hljs">${highlightedLines[i]}</span></div>`;
       }
     } else {
       const lines = data.content.split('\n');
       for (let i = 0; i < lines.length; i++) {
-        html += `<div class="file-line"><span class="line-num">${i + 1}</span><span class="line-text">${escapeHtml(lines[i])}</span></div>`;
+        const lineClass = addedLines.has(i + 1) ? 'file-line addition' : 'file-line';
+        html += `<div class="${lineClass}"><span class="line-num">${i + 1}</span><span class="line-text">${escapeHtml(lines[i])}</span></div>`;
       }
     }
     html += '</div>';

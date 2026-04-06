@@ -45,6 +45,9 @@ function init() {
     renderTree();
     renderStatus();
     if (state.viewerTab === 'changes') loadChanges();
+    if (state.viewerTab === 'file' && state.activeFile) {
+      selectFile(state.activeFile, state.activeFile.split('.').pop());
+    }
     document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
   });
 

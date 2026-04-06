@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('companion', {
   getGitStatus: () => ipcRenderer.invoke('get-git-status'),
   getDiff: (file) => ipcRenderer.invoke('get-diff', file || null),
   getFileContent: (filePath) => ipcRenderer.invoke('get-file-content', filePath),
+  saveFileContent: (filePath, content) => ipcRenderer.invoke('save-file-content', filePath, content),
   getCommits: () => ipcRenderer.invoke('get-commits'),
   getCommitDiff: (hash) => ipcRenderer.invoke('get-commit-diff', hash),
 

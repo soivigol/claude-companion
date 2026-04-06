@@ -4,6 +4,22 @@ All notable changes to Claude Companion are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2.1.0] - 2026-04-06
+
+### Added
+- Inline file editor powered by CodeMirror 6 — click Edit on any file to open a full code editor with syntax highlighting, bracket matching, search/replace, and multi-cursor support
+- Save file content from the editor (Save/Cancel buttons in the file header)
+- `save-file-content` IPC channel for writing files from the renderer
+- CodeMirror language support for JS/TS/JSX/TSX, HTML, CSS, PHP, Python, JSON, Markdown, SQL, XML, YAML
+- Light and dark CodeMirror themes matching the app theme
+
+### Changed
+- File viewer now shows full file content with syntax highlighting when clicking a changed file, instead of showing only diff hunks
+- Changed lines (additions) are highlighted inline with green background in the full file view
+- Active file auto-refreshes when the file watcher detects changes
+- Horizontal scroll now applies to the full panel content in file viewer, changes, and commits tabs (instead of per-line scroll)
+- Diff headers and section borders extend to full scrollable content width
+
 ## [2.0.3] - 2026-04-06
 
 ### Added

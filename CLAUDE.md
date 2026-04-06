@@ -9,7 +9,7 @@ Claude Companion is a native cross-platform Electron desktop app (macOS, Windows
 - **`main.cjs`** — Electron main process orchestrator. Wires per-window state (`windows` Map), IPC handlers, terminal, and file watcher via lib modules.
 - **`preload.cjs`** — Context-isolated IPC bridge exposing `window.companion` API to the renderer. Includes `platform` property, `getPathForFile()` (via `webUtils`), auto-update channels, and listener cleanup (disposers).
 - **`src/main.js`** — Renderer entry point bundled by esbuild. Imports from `core/` and `components/`, wires cross-module connections, runs init.
-- **`src/core/`** — Shared state, API bridge, pure utilities: `api.js`, `state.js`, `diff.js`, `themes-data.js`, `highlight-setup.js`.
+- **`src/core/`** — Shared state, API bridge, pure utilities: `api.js`, `state.js`, `diff.js`, `themes-data.js`, `highlight-setup.js`, `editor-setup.js`.
 - **`src/components/`** — UI modules: `terminal.js`, `themes.js`, `file-tree.js`, `file-viewer.js`, `viewer.js`, `commits.js`, `status.js`, `resize.js`, `project.js`, `update-banner.js`.
 - **`src/css/styles.css`** — All application CSS, bundled by esbuild into `dist/main.css`.
 - **`index.html`** — Three-pane layout shell. Light and dark theme via `[data-theme]` CSS variables. CSP meta tag.

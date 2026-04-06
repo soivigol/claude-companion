@@ -505,6 +505,45 @@ html, body {
   border-bottom: 1px solid var(--border-subtle);
   position: sticky; top: 0; z-index: 2;
   min-width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+
+.file-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.file-action-btn {
+  padding: 3px 10px; border-radius: 4px;
+  font-size: 11px; font-family: var(--font-mono);
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg-surface); color: var(--text-primary);
+}
+.file-action-btn:hover { background: var(--bg-hover); }
+
+.file-action-btn.save-btn {
+  background: var(--green); color: #fff; border-color: var(--green);
+}
+.file-action-btn.save-btn:hover { opacity: 0.85; }
+
+.file-action-btn.cancel-btn {
+  background: var(--bg-surface); color: var(--text-muted);
+}
+
+.file-editor-container {
+  flex: 1; overflow: hidden;
+}
+
+.file-editor-container .cm-editor {
+  height: 100%;
+  font-size: 12px;
+}
+
+.file-editor-container .cm-scroller {
+  font-family: var(--font-mono);
+}
+
+.file-editor-container.editor-error { outline: 2px solid var(--red); }
+
+.viewer-panel:has(.file-editor-container) {
+  display: flex; flex-direction: column; overflow: hidden;
 }
 
 .file-path {

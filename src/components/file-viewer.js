@@ -4,6 +4,9 @@ import { hljs, LANG_MAP } from '../core/highlight-setup.js';
 import { renderTree } from './file-tree.js';
 import { escapeHtml, parseDiff } from '../core/diff.js';
 import { switchViewerTab } from './viewer.js';
+import { createEditor } from '../core/editor-setup.js';
+
+let activeEditor = null;
 
 function getAddedLines(diffRaw) {
   const files = parseDiff(diffRaw);
@@ -16,7 +19,52 @@ function getAddedLines(diffRaw) {
   return added;
 }
 
+function destroyEditor() {
+  if (activeEditor) {
+    activeEditor.destroy();
+    activeEditor = null;
+  }
+}
+
+function enterEditMode(filePath, content) {
+  destroyEditor();
+  const panel = document.getElementById('filePanel');
+  const header = panel.querySelector('.file-header');
+
+  header.innerHTML = `<span class="file-path">${escapeHtml(filePath)}</span>
+    <div class="file-actions">
+      <button class="file-action-btn save-btn" id="fileSaveBtn">Save</button>
+      <button class="file-action-btn cancel-btn" id="fileCancelBtn">Cancel</button>
+    </div>`;
+
+  const viewer = panel.querySelector('.file-viewer');
+  const editorContainer = document.createElement('div');
+  editorContainer.className = 'file-editor-container';
+  viewer.replaceWith(editorContainer);
+
+  const fileExt = filePath.split('.').pop();
+  activeEditor = createEditor(editorContainer, content, fileExt, state.theme === 'dark');
+
+  document.getElementById('fileSaveBtn').addEventListener('click', async () => {
+    const newContent = activeEditor.state.doc.toString();
+    const result = await api.saveFileContent(filePath, newContent);
+    if (result.error) {
+      editorContainer.classList.add('editor-error');
+      setTimeout(() => editorContainer.classList.remove('editor-error'), 600);
+      return;
+    }
+    destroyEditor();
+    selectFile(filePath, fileExt);
+  });
+
+  document.getElementById('fileCancelBtn').addEventListener('click', () => {
+    destroyEditor();
+    selectFile(filePath, filePath.split('.').pop());
+  });
+}
+
 export async function selectFile(filePath, ext) {
+  destroyEditor();
   state.activeFile = filePath;
   renderTree();
 
@@ -48,7 +96,12 @@ export async function selectFile(filePath, ext) {
       }
     }
 
-    let html = `<div class="file-header"><span class="file-path">${escapeHtml(filePath)}</span></div>`;
+    let html = `<div class="file-header">
+      <span class="file-path">${escapeHtml(filePath)}</span>
+      <div class="file-actions">
+        <button class="file-action-btn edit-btn" id="fileEditBtn">Edit</button>
+      </div>
+    </div>`;
     html += '<div class="file-viewer">';
     if (highlightedLines) {
       for (let i = 0; i < highlightedLines.length; i++) {
@@ -65,5 +118,9 @@ export async function selectFile(filePath, ext) {
     html += '</div>';
     document.getElementById('filePanel').innerHTML = html;
     switchViewerTab('file');
+
+    document.getElementById('fileEditBtn').addEventListener('click', () => {
+      enterEditMode(filePath, data.content);
+    });
   }
 }

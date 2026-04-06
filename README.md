@@ -8,12 +8,12 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 
 | Platform | Download | Notes |
 |----------|----------|-------|
-| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion-2.0.0-arm64.dmg) | M1/M2/M3/M4 |
-| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion-2.0.0.dmg) | Intel Macs |
-| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion.Setup.2.0.0.exe) | Standard installer |
-| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion.2.0.0.exe) | No install required |
-| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/Claude.Companion-2.0.0.AppImage) | Universal |
-| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.0.0/claude-companion_2.0.0_amd64.deb) | Debian/Ubuntu |
+| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion-2.1.0-arm64.dmg) | M1/M2/M3/M4 |
+| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion-2.1.0.dmg) | Intel Macs |
+| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion.Setup.2.1.0.exe) | Standard installer |
+| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion.2.1.0.exe) | No install required |
+| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion-2.1.0.AppImage) | Universal |
+| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/claude-companion_2.1.0_amd64.deb) | Debian/Ubuntu |
 
 [All releases](https://github.com/soivigol/claude-companion/releases)
 
@@ -21,7 +21,8 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 
 - **File explorer** (left pane) — project tree with git status indicators, drag files to the terminal to add them as context
 - **Embedded terminal** (center pane) — runs Claude Code CLI directly, auto-launches on project open
-- **Diff & file viewer** (right pane) — live git diffs, commit history, syntax-highlighted file viewer (highlight.js)
+- **Diff & file viewer** (right pane) — live git diffs, commit history, syntax-highlighted file viewer with inline change highlights
+- **Inline code editor** — edit files directly with CodeMirror 6 (syntax highlighting, bracket matching, search/replace, multi-cursor)
 - **Native tabs on macOS** — Cmd+T to open multiple projects, each tab is fully independent
 - **Multi-window support** — open multiple projects simultaneously on any platform
 - **Light/dark theme** — toggle with the button in the header, persists across sessions
@@ -115,7 +116,8 @@ electron-builder.yml  Cross-platform build configuration
 - [Electron](https://www.electronjs.org/) — cross-platform desktop framework
 - [electron-builder](https://www.electron.build/) — multi-platform packaging and distribution
 - [xterm.js](https://xtermjs.org/) + [node-pty](https://github.com/niclas-niclas/node-pty) — embedded terminal
-- [highlight.js](https://highlightjs.org/) — syntax highlighting (16 languages)
+- [highlight.js](https://highlightjs.org/) — syntax highlighting in file viewer
+- [CodeMirror 6](https://codemirror.net/) — inline code editor
 - [chokidar](https://github.com/paulmillr/chokidar) — filesystem watching
 - [esbuild](https://esbuild.github.io/) — renderer bundling
 - Git CLI — diffs, status, commit history

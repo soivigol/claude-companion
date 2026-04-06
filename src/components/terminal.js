@@ -7,6 +7,8 @@ import { state } from '../core/state.js';
 import { api } from '../core/api.js';
 import { THEMES } from '../core/themes-data.js';
 
+const shellQuote = (p) => (/[^a-zA-Z0-9_.\/:-]/.test(p) ? `'${p.replace(/'/g, "'\\''")}'` : p);
+
 export const term = new Terminal({
   fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace",
   fontSize: 13,
@@ -70,27 +72,53 @@ export function initTerminal() {
     });
     resizeObserver.observe(container);
 
-    // Drag-and-drop: receive file path from tree
+    // Drag-and-drop: file paths from tree sidebar or external (Finder/Explorer)
     const terminalPane = container.closest('.terminal-pane');
+    let dragCounter = 0;
+
+    terminalPane.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      dragCounter++;
+      terminalPane.classList.add('drop-active');
+    }, { capture: true });
 
     terminalPane.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
-      terminalPane.classList.add('drop-active');
     }, { capture: true });
 
-    terminalPane.addEventListener('dragleave', (e) => {
-      if (!terminalPane.contains(e.relatedTarget)) {
+    terminalPane.addEventListener('dragleave', () => {
+      dragCounter--;
+      if (dragCounter <= 0) {
+        dragCounter = 0;
         terminalPane.classList.remove('drop-active');
       }
     }, { capture: true });
 
     terminalPane.addEventListener('drop', (e) => {
       e.preventDefault();
+      dragCounter = 0;
       terminalPane.classList.remove('drop-active');
-      const filePath = e.dataTransfer.getData('text/plain');
-      if (filePath) {
-        api.terminalInput(filePath);
+
+      // External files from Finder/Explorer
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        const paths = [];
+        for (let i = 0; i < files.length; i++) {
+          const filePath = api.getPathForFile(files[i]);
+          if (filePath) paths.push(shellQuote(filePath));
+        }
+        if (paths.length > 0) {
+          api.terminalInput(paths.join(' '));
+          term.focus();
+          return;
+        }
+      }
+
+      // Internal tree drag (from file explorer sidebar)
+      const textData = e.dataTransfer.getData('text/plain');
+      if (textData) {
+        api.terminalInput(shellQuote(textData));
         term.focus();
       }
     }, { capture: true });

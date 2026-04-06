@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 const path = require('path');
 
 const appVersion = require(path.join(__dirname, 'package.json')).version;
@@ -7,6 +7,9 @@ contextBridge.exposeInMainWorld('companion', {
   // Platform info
   platform: process.platform,
   appVersion,
+
+  // File utilities
+  getPathForFile: (file) => webUtils.getPathForFile(file),
 
   // Folder picker
   selectFolder: () => ipcRenderer.invoke('select-folder'),

@@ -7,7 +7,7 @@ Claude Companion is a native cross-platform Electron desktop app (macOS, Windows
 ## Architecture
 
 - **`main.cjs`** — Electron main process orchestrator. Wires per-window state (`windows` Map), IPC handlers, terminal, and file watcher via lib modules.
-- **`preload.cjs`** — Context-isolated IPC bridge exposing `window.companion` API to the renderer. Includes `platform` property, auto-update channels, and listener cleanup (disposers).
+- **`preload.cjs`** — Context-isolated IPC bridge exposing `window.companion` API to the renderer. Includes `platform` property, `getPathForFile()` (via `webUtils`), auto-update channels, and listener cleanup (disposers).
 - **`src/main.js`** — Renderer entry point bundled by esbuild. Imports from `core/` and `components/`, wires cross-module connections, runs init.
 - **`src/core/`** — Shared state, API bridge, pure utilities: `api.js`, `state.js`, `diff.js`, `themes-data.js`, `highlight-setup.js`.
 - **`src/components/`** — UI modules: `terminal.js`, `themes.js`, `file-tree.js`, `file-viewer.js`, `viewer.js`, `commits.js`, `status.js`, `resize.js`, `project.js`, `update-banner.js`.
@@ -63,6 +63,15 @@ Six test suites in `tests/`:
 - Dev mode auto-opens DevTools (detached)
 - Debug log written to `~/cc-debug.log` with timestamps for window/IPC/PTY lifecycle events
 - Renderer logs prefixed with `[CC]`
+
+## Changelog
+
+Maintain `CHANGELOG.md` at the project root following [Keep a Changelog](https://keepachangelog.com/) format:
+- Update the changelog with every version bump
+- Group changes under: `Added`, `Changed`, `Fixed`, `Removed`, `Deprecated`, `Security`
+- Each release has a `## [version] - YYYY-MM-DD` header
+- Write entries from the user's perspective (what changed, not implementation details)
+- Keep the `[Unreleased]` section at the top for work-in-progress (move to a version header on release)
 
 ## File Ignore List (tree and watcher)
 

@@ -17,6 +17,9 @@ if (document.body) {
   document.body.classList.add(`platform-${api.platform || 'unknown'}`);
 }
 
+// --- Allow file drops (dragover must preventDefault to enable dropping) ---
+document.addEventListener('dragover', (e) => e.preventDefault());
+
 // --- Init ---
 
 function init() {

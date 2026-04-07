@@ -10,8 +10,8 @@ const {
 } = require('./lib/platform.cjs');
 const {
   getFileTree, getGitStatus, getGitDiff, getFullDiff,
-  getRecentCommits, getCommitDiff,
-} = require('./lib/git-helpers.cjs');
+  getRecentCommits, getCommitDiff, clearLayoutCache,
+} = require('./lib/git-facade.cjs');
 const { createLogger } = require('./lib/logger.cjs');
 const { getWindowContext, cleanupWindow, createWindow } = require('./lib/window-manager.cjs');
 const { setupTerminal } = require('./lib/terminal-setup.cjs');
@@ -37,7 +37,7 @@ app.whenReady().then(() => {
     getWindowContext: (webContents) => getWindowContext(windows, webContents, BrowserWindow),
     setupTerminal: (ctx) => setupTerminal(ctx, terminalDeps),
     setupWatcher: (ctx) => setupWatcher(ctx, watcherDeps),
-    gitHelpers: { getFileTree, getGitStatus, getGitDiff, getFullDiff, getRecentCommits, getCommitDiff },
+    gitHelpers: { getFileTree, getGitStatus, getGitDiff, getFullDiff, getRecentCommits, getCommitDiff, clearLayoutCache },
     ipcMain, dialog, fs, path, BrowserWindow,
   });
 

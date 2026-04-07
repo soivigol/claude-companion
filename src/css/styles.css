@@ -181,9 +181,40 @@ html, body {
   border-radius: 20px;
   font-size: 11px; font-family: var(--font-mono); color: var(--accent);
   -webkit-app-region: no-drag;
+  position: relative; cursor: pointer;
 }
 
 .branch-badge svg { flex-shrink: 0; }
+
+/* Repo popover */
+.repo-popover {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0;
+  min-width: 240px; max-width: 360px;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  padding: 6px 0; z-index: 100;
+}
+.repo-popover.open { display: block; }
+.repo-popover-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; font-size: 12px;
+}
+.repo-popover-item:hover { background: var(--bg-hover); }
+.repo-popover-name {
+  font-family: var(--font-mono); color: var(--text-primary);
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.repo-popover-branch {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--accent); background: var(--accent-dim);
+  padding: 1px 6px; border-radius: 10px; flex-shrink: 0;
+}
+.repo-popover-count {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-on-accent, #fff); background: var(--accent);
+  min-width: 16px; height: 16px; line-height: 16px;
+  text-align: center; border-radius: 8px; flex-shrink: 0;
+}
 
 .change-folder-btn {
   -webkit-app-region: no-drag;
@@ -284,6 +315,15 @@ html, body {
 }
 
 .tree-item.directory .name { color: var(--text-secondary); font-weight: 500; }
+
+/* Repo root indicator in file tree */
+.tree-item.repo-root .name { color: var(--text-primary); }
+.repo-icon { color: var(--accent); flex-shrink: 0; margin-left: 2px; }
+.repo-branch {
+  font-size: 9px; font-family: var(--font-mono);
+  color: var(--accent); background: var(--accent-dim);
+  padding: 0 5px; border-radius: 8px; flex-shrink: 0;
+}
 
 .file-dot {
   width: 7px; height: 7px; border-radius: 50%;
@@ -484,6 +524,12 @@ html, body {
   font-family: var(--font-mono); font-size: 10px;
   color: var(--accent); background: var(--accent-dim);
   padding: 1px 5px; border-radius: 4px; flex-shrink: 0;
+}
+.commit-repo {
+  font-size: 9px; color: var(--text-secondary);
+  background: var(--border); padding: 1px 5px;
+  border-radius: 4px; flex-shrink: 0; max-width: 120px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .commit-message {

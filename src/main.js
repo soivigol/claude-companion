@@ -4,7 +4,7 @@ import { state } from './core/state.js';
 import { applyTheme, toggleTheme } from './components/themes.js';
 import { handleSelectFolder } from './components/project.js';
 import { renderTree, setFileSelectHandler } from './components/file-tree.js';
-import { renderStatus } from './components/status.js';
+import { renderStatus, initRepoPopover } from './components/status.js';
 import { loadChanges } from './components/viewer.js';
 import { selectFile } from './components/file-viewer.js';
 import { initUpdateBanner } from './components/update-banner.js';
@@ -28,6 +28,7 @@ function init() {
 
 
   initUpdateBanner();
+  initRepoPopover();
 
   // Welcome screen
   document.getElementById('selectFolderBtn').addEventListener('click', handleSelectFolder);

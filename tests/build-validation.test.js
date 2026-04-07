@@ -23,6 +23,9 @@ describe('required project files', () => {
     'src/main.js',
     'lib/platform.cjs',
     'lib/git-helpers.cjs',
+    'lib/git-discovery.cjs',
+    'lib/git-multi-repo.cjs',
+    'lib/git-facade.cjs',
     'assets/icon.png',
     'assets/icon.icns',
     'assets/icon.ico',
@@ -141,9 +144,9 @@ describe('main.cjs syntax', () => {
     expect(content).toContain("require('./lib/platform.cjs')");
   });
 
-  it('imports lib/git-helpers.cjs', () => {
+  it('imports lib/git-facade.cjs', () => {
     const content = fs.readFileSync(path.join(ROOT, 'main.cjs'), 'utf-8');
-    expect(content).toContain("require('./lib/git-helpers.cjs')");
+    expect(content).toContain("require('./lib/git-facade.cjs')");
   });
 
   it('does not contain hardcoded /bin/zsh shell', () => {
@@ -227,6 +230,9 @@ describe('lib/ module files', () => {
   const libModules = [
     'platform.cjs',
     'git-helpers.cjs',
+    'git-discovery.cjs',
+    'git-multi-repo.cjs',
+    'git-facade.cjs',
     'logger.cjs',
     'window-manager.cjs',
     'terminal-setup.cjs',

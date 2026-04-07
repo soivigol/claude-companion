@@ -12,8 +12,10 @@ export async function loadCommits() {
 
   let html = '<div class="commit-list">';
   for (const c of commits) {
+    const repoBadge = c.repo ? `<span class="commit-repo">${escapeHtml(c.repo)}</span>` : '';
     html += `<div class="commit-item" data-hash="${c.hash}">
       <span class="commit-hash">${c.hash}</span>
+      ${repoBadge}
       <span class="commit-message">${escapeHtml(c.message)}</span>
       <span class="commit-time">${c.time}</span>
     </div>`;

@@ -29,6 +29,13 @@ function getChangeStatus(filePath) {
   return f ? f.statusLabel : null;
 }
 
+function isRepoRoot(dirPath) {
+  if (!state.status?.isMultiRepo || !state.status.repos) return null;
+  return state.status.repos.find((r) => r.repo === dirPath) || null;
+}
+
+const GIT_ICON = '<svg class="repo-icon" width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Z"/></svg>';
+
 export function countFiles(nodes) {
   let n = 0;
   for (const node of nodes) {
@@ -49,9 +56,13 @@ function renderTreeNode(node, depth = 0) {
         : c.children?.some((gc) => state.changedPaths.has(gc?.path))
     );
 
-    return `<div class="tree-item directory" style="padding-left:${12 + indent}px" data-dir="${node.path}" draggable="true">
+    const repo = isRepoRoot(node.path);
+    const repoTag = repo ? `${GIT_ICON}<span class="repo-branch">${repo.branch}</span>` : '';
+
+    return `<div class="tree-item directory${repo ? ' repo-root' : ''}" style="padding-left:${12 + indent}px" data-dir="${node.path}" draggable="true">
       <svg class="chevron ${isOpen ? 'open' : ''}" viewBox="0 0 16 16" fill="currentColor"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></svg>
       <span class="name">${node.name}</span>
+      ${repoTag}
       ${hasChanges ? '<span class="status-dot modified"></span>' : ''}
     </div>
     <div class="tree-children ${isOpen ? 'open' : ''}">${

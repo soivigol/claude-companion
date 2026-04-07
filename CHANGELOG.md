@@ -4,6 +4,15 @@ All notable changes to Claude Companion are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2.1.1] - 2026-04-07
+
+### Added
+- Multi-repo git support — projects without a root `.git` now discover and aggregate changes from nested git repositories
+- Git repo indicators in the file tree with branch badges on repo root directories
+- Clickable "N repos" header badge with popover listing all discovered repos, branches, and per-repo change counts
+- Commits tab merges commits from all sub-repos sorted by date, with repo name badges
+- New modular git architecture: `git-discovery.cjs`, `git-multi-repo.cjs`, `git-facade.cjs`
+
 ## [2.1.0] - 2026-04-06
 
 ### Added

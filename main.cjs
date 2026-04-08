@@ -18,6 +18,7 @@ const { setupTerminal } = require('./lib/terminal-setup.cjs');
 const { setupWatcher } = require('./lib/file-watcher.cjs');
 const { setupIPC } = require('./lib/ipc-handlers.cjs');
 const { setupAutoUpdater } = require('./lib/auto-updater.cjs');
+const { createRecentProjects } = require('./lib/recent-projects.cjs');
 
 const IS_MAC = process.platform === 'darwin';
 const windows = new Map();
@@ -28,7 +29,14 @@ const watcherDeps = { log, watch, getFileTree, getGitStatus, path };
 
 app.setName('Claude Companion');
 
-app.whenReady().then(() => {
+// eslint-disable-next-line no-new-func
+const loadStore = new Function('return import("electron-store")');
+let recentProjects;
+
+app.whenReady().then(async () => {
+  const { default: Store } = await loadStore();
+  const store = new Store();
+  recentProjects = createRecentProjects(store, path);
   const template = buildMenuTemplate(process.platform, app.name, () => spawnWindow());
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
@@ -38,7 +46,7 @@ app.whenReady().then(() => {
     setupTerminal: (ctx) => setupTerminal(ctx, terminalDeps),
     setupWatcher: (ctx) => setupWatcher(ctx, watcherDeps),
     gitHelpers: { getFileTree, getGitStatus, getGitDiff, getFullDiff, getRecentCommits, getCommitDiff, clearLayoutCache },
-    ipcMain, dialog, fs, path, BrowserWindow,
+    ipcMain, dialog, fs, path, BrowserWindow, recentProjects,
   });
 
   spawnWindow();

@@ -59,3 +59,46 @@ export async function handleSelectFolder() {
   const folder = await api.selectFolder();
   if (folder) openProject(folder);
 }
+
+function renderRecentList(projects) {
+  const container = document.getElementById('recentProjects');
+  if (!projects.length) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const folderSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+
+  container.innerHTML =
+    '<div class="recent-projects-title">Recent Projects</div>' +
+    projects.map((p) =>
+      `<div class="recent-item" data-path="${p.path.replace(/"/g, '&quot;')}">
+        <div class="recent-item-icon">${folderSvg}</div>
+        <div class="recent-item-info">
+          <div class="recent-item-name">${p.name}</div>
+          <div class="recent-item-path">${p.path}</div>
+        </div>
+        <button class="recent-item-remove" data-remove="${p.path.replace(/"/g, '&quot;')}" title="Remove from list">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`
+    ).join('');
+
+  container.onclick = async (e) => {
+    const removeBtn = e.target.closest('[data-remove]');
+    if (removeBtn) {
+      e.stopPropagation();
+      await api.removeRecentProject(removeBtn.dataset.remove);
+      const updated = await api.getRecentProjects();
+      renderRecentList(updated);
+      return;
+    }
+    const item = e.target.closest('.recent-item');
+    if (item) openProject(item.dataset.path);
+  };
+}
+
+export async function initRecentProjects() {
+  const projects = await api.getRecentProjects();
+  renderRecentList(projects);
+}

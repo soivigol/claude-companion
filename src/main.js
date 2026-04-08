@@ -2,7 +2,7 @@ import './css/styles.css';
 import { api } from './core/api.js';
 import { state } from './core/state.js';
 import { applyTheme, toggleTheme } from './components/themes.js';
-import { handleSelectFolder } from './components/project.js';
+import { handleSelectFolder, initRecentProjects } from './components/project.js';
 import { renderTree, setFileSelectHandler } from './components/file-tree.js';
 import { renderStatus, initRepoPopover } from './components/status.js';
 import { loadChanges } from './components/viewer.js';
@@ -32,6 +32,7 @@ function init() {
 
   // Welcome screen
   document.getElementById('selectFolderBtn').addEventListener('click', handleSelectFolder);
+  initRecentProjects();
 
   // Header buttons
   document.getElementById('changeFolderBtn').addEventListener('click', handleSelectFolder);

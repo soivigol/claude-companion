@@ -4,6 +4,13 @@ All notable changes to Claude Companion are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [2.1.2] - 2026-04-08
+
+### Added
+- Recent projects list on the welcome screen — quickly reopen previously opened projects with a single click
+- Projects are persisted across sessions via electron-store (up to 10 entries)
+- Remove individual projects from the recent list with the X button on hover
+
 ## [2.1.1] - 2026-04-07
 
 ### Added

@@ -126,6 +126,75 @@ html, body {
   margin-top: -8px;
 }
 
+/* Recent projects list */
+.recent-projects {
+  width: 100%; max-width: 380px;
+  margin-top: 20px;
+}
+
+.recent-projects:empty { display: none; }
+
+.recent-projects-title {
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.recent-item {
+  -webkit-app-region: no-drag;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.recent-item:hover { background: var(--bg-hover); }
+
+.recent-item-icon {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius);
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.recent-item-info {
+  flex: 1; min-width: 0;
+}
+
+.recent-item-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.recent-item-path {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.recent-item-remove {
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none;
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition), background var(--transition);
+}
+
+.recent-item:hover .recent-item-remove { opacity: 1; }
+.recent-item-remove:hover { background: var(--bg-active); color: var(--text-primary); }
+
 /* ===== Three-pane layout ===== */
 
 .app {

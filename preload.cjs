@@ -15,6 +15,10 @@ contextBridge.exposeInMainWorld('companion', {
   selectFolder: () => ipcRenderer.invoke('select-folder'),
   openProject: (folderPath) => ipcRenderer.invoke('open-project', folderPath),
 
+  // Recent projects
+  getRecentProjects: () => ipcRenderer.invoke('get-recent-projects'),
+  removeRecentProject: (projectPath) => ipcRenderer.invoke('remove-recent-project', projectPath),
+
   // Project
   getProjectInfo: () => ipcRenderer.invoke('get-project-info'),
   getFileTree: () => ipcRenderer.invoke('get-file-tree'),

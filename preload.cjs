@@ -84,6 +84,7 @@ contextBridge.exposeInMainWorld('companion', {
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   downloadUpdate: () => ipcRenderer.invoke('download-update'),
   installUpdate: () => ipcRenderer.invoke('install-update'),
+  openReleasePage: () => ipcRenderer.invoke('open-release-page'),
   onUpdateStatus: (cb) => {
     const handler = (_, data) => cb(data);
     ipcRenderer.on('update-status', handler);

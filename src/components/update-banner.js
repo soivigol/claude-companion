@@ -25,6 +25,9 @@ export function initUpdateBanner() {
         container.innerHTML = `<span class="update-badge ready" id="updateAction">Restart to update</span>`;
         container.querySelector('#updateAction').onclick = () => api.installUpdate();
         break;
+      case 'install-failed':
+        showDownloadLink(container, data.version);
+        break;
       case 'error':
         showRetry(container, pendingVersion);
         break;
@@ -49,4 +52,9 @@ function showRetry(container, version) {
       showRetry(container, version);
     });
   };
+}
+
+function showDownloadLink(container, version) {
+  container.innerHTML = `<span class="update-badge ready" id="updateAction">Download v${version}</span>`;
+  container.querySelector('#updateAction').onclick = () => api.openReleasePage();
 }

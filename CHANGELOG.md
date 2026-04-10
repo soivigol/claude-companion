@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.3] - 2026-04-10
+
+### Fixed
+- Auto-update install failing on unsigned macOS builds (Squirrel code signature validation)
+- When native install fails, the badge now shows "Download vX.Y.Z" linking to the GitHub release page instead of a broken retry loop
+
+### Added
+- `install-failed` update status with fallback to opening the release page in the browser
+- `open-release-page` IPC channel for manual update downloads
+
 ## [2.2.2] - 2026-04-10
 
 ### Changed

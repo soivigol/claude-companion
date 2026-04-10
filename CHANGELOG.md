@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.6] - 2026-04-10
+
+### Changed
+- Test release to verify internal DMG download update flow from v2.2.5
+
 ## [2.2.5] - 2026-04-10
 
 ### Fixed

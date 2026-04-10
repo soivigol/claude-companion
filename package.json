@@ -1,6 +1,6 @@
 {
   "name": "claude-companion",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Native cross-platform companion app for Claude Code CLI",
   "author": {
     "name": "David Viña",

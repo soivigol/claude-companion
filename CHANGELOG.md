@@ -8,70 +8,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [2.2.6] - 2026-04-10
 
-### Changed
-- Test release to verify internal DMG download update flow from v2.2.5
-
-## [2.2.5] - 2026-04-10
-
-### Fixed
-- Update install fallback now downloads the DMG internally (via Electron) instead of opening the browser, avoiding macOS Gatekeeper quarantine ("damaged" error)
-- Quarantine attribute automatically removed from downloaded DMG before opening
-
-### Changed
-- Install-failed flow: badge shows "Install vX.Y.Z" → downloads DMG to ~/Downloads → removes quarantine → opens DMG in Finder → badge shows "DMG ready — drag to Applications"
-
-## [2.2.4] - 2026-04-10
-
-### Changed
-- Test release to verify auto-updater install-failed fallback from v2.2.3
-
-## [2.2.3] - 2026-04-10
-
-### Fixed
-- Auto-update install failing on unsigned macOS builds (Squirrel code signature validation)
-- When native install fails, the badge now shows "Download vX.Y.Z" linking to the GitHub release page instead of a broken retry loop
-
 ### Added
-- `install-failed` update status with fallback to opening the release page in the browser
-- `open-release-page` IPC channel for manual update downloads
-
-## [2.2.2] - 2026-04-10
-
-### Changed
-- Test release to verify auto-updater flow end-to-end
-
-## [2.2.1] - 2026-04-10
-
-### Fixed
-- Update badge not responding to clicks — download now shows immediate "Starting download…" feedback on click
-- Silent update errors — failed downloads now show a red "Retry update" badge instead of disappearing silently
-- Unhandled promise rejection when `downloadUpdate()` fails before the error event fires
-
-### Added
-- Error state styling for the update badge (red retry button)
-- Stack trace logging for update errors in `~/cc-debug.log`
-
-## [2.2.0] - 2026-04-10
-
-### Added
-- Git operations panel — new sidebar tab (Source Control) alongside the file explorer for commit, push, and branch management
-- Smart commit message generator that auto-detects change type (feat, fix, chore, test, docs, style) from file paths and diff content
-- One-click "Commit All" stages all changes and commits with the generated (or edited) message
-- "Commit & Push" button for combined commit + push in a single action
-- Standalone "Push" button shown on clean working tree when unpushed commits exist
-- Multi-repo support: each repository with changes gets its own independent commit section with separate message, commit, and push buttons
-- Ahead/behind tracking — detects unpushed commits per repo via upstream comparison
-- SFTP sync — push local project files to remote SFTP servers with a single click
-- SFTP configuration modal with support for multiple server profiles per project
-- Authentication via password, SSH private key (with passphrase), or SSH agent
-- Hierarchical config: root-level config takes priority; subfolder configs available when no root is set
-- Per-server ignore patterns (separate from .gitignore) and configurable upload concurrency
+- Git operations panel — Source Control sidebar tab for commit and push operations
+- Smart commit messages — auto-generated conventional-commit-style messages based on changed files and diff analysis (feat, fix, chore, test, docs, style)
+- One-click "Commit All" — stages everything and commits with a single click
+- "Commit & Push" — combined commit + push action
+- Push unpushed commits — after commit-only, a Push button appears on the clean working tree screen
+- Multi-repo support — each repository with changes gets its own independent section with separate commit message, commit, and push buttons
+- SFTP sync — push to remote SFTP servers with a single click from the header
+- Multi-server profiles — configure multiple SFTP servers per project
+- SFTP authentication — password, SSH private key (with passphrase), or SSH agent
 - Conflict detection — warns when remote files are newer, with per-file overwrite/skip resolution
-- Sync status indicator in the header (syncing/done/error)
-- Test connection button to verify SFTP credentials before syncing
+- Test connection — verify SFTP credentials before syncing
 
 ### Changed
-- Left sidebar now has tabbed navigation (Explorer / Source Control) instead of a fixed file tree
+- Left sidebar now has tabbed navigation (Explorer / Source Control) similar to VS Code's activity bar
+- Sidebar tabs use icon buttons with active indicator
+
+### Fixed
+- Auto-update install failing on unsigned macOS builds
 
 ## [2.1.2] - 2026-04-08
 

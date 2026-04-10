@@ -11,6 +11,7 @@ const {
 const {
   getFileTree, getGitStatus, getGitDiff, getFullDiff,
   getRecentCommits, getCommitDiff, clearLayoutCache,
+  gitStageAll, gitCommit, gitPush, getRemoteInfo,
 } = require('./lib/git-facade.cjs');
 const { createLogger } = require('./lib/logger.cjs');
 const { getWindowContext, cleanupWindow, createWindow } = require('./lib/window-manager.cjs');
@@ -19,13 +20,23 @@ const { setupWatcher } = require('./lib/file-watcher.cjs');
 const { setupIPC } = require('./lib/ipc-handlers.cjs');
 const { setupAutoUpdater } = require('./lib/auto-updater.cjs');
 const { createRecentProjects } = require('./lib/recent-projects.cjs');
+const { createSftpConfig } = require('./lib/sftp-config.cjs');
+const { createSftpClient } = require('./lib/sftp-client.cjs');
+const { createSftpSync } = require('./lib/sftp-sync.cjs');
+const crypto = require('crypto');
 
 const IS_MAC = process.platform === 'darwin';
 const windows = new Map();
 const { log } = createLogger(path.join(os.homedir(), 'cc-debug.log'));
 
 const terminalDeps = { log, getDefaultShell, getShellArgs, getTerminalEnv };
-const watcherDeps = { log, watch, getFileTree, getGitStatus, path };
+let sftpConfigRef = null;
+const watcherDeps = {
+  log, watch, getFileTree, getGitStatus, path,
+  onFileTracked: (projectPath, relativePath) => {
+    if (sftpConfigRef) sftpConfigRef.addChangedFile(projectPath, relativePath);
+  },
+};
 
 app.setName('Claude Companion');
 
@@ -37,6 +48,8 @@ app.whenReady().then(async () => {
   const { default: Store } = await loadStore();
   const store = new Store();
   recentProjects = createRecentProjects(store, path);
+  const sftpConfig = createSftpConfig(store, crypto);
+  sftpConfigRef = sftpConfig;
   const template = buildMenuTemplate(process.platform, app.name, () => spawnWindow());
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
@@ -45,8 +58,8 @@ app.whenReady().then(async () => {
     getWindowContext: (webContents) => getWindowContext(windows, webContents, BrowserWindow),
     setupTerminal: (ctx) => setupTerminal(ctx, terminalDeps),
     setupWatcher: (ctx) => setupWatcher(ctx, watcherDeps),
-    gitHelpers: { getFileTree, getGitStatus, getGitDiff, getFullDiff, getRecentCommits, getCommitDiff, clearLayoutCache },
-    ipcMain, dialog, fs, path, BrowserWindow, recentProjects,
+    gitHelpers: { getFileTree, getGitStatus, getGitDiff, getFullDiff, getRecentCommits, getCommitDiff, clearLayoutCache, gitStageAll, gitCommit, gitPush, getRemoteInfo },
+    ipcMain, dialog, fs, path, BrowserWindow, recentProjects, sftpConfig, crypto,
   });
 
   spawnWindow();

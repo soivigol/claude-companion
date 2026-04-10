@@ -124,17 +124,38 @@ export function initTerminal() {
     }, { capture: true });
   }
 
-  // Fit with multiple retries to handle layout settling
-  fitTerminal();
-  setTimeout(fitTerminal, 100);
-  setTimeout(fitTerminal, 300);
-  setTimeout(fitTerminal, 600);
+  // Fit with layout-aware retries — the CSS grid may not have settled yet
+  fitTerminalWhenReady();
 }
 
 export function fitTerminal() {
   try {
+    const container = document.getElementById('terminal');
+    if (!container || container.clientHeight === 0 || container.clientWidth === 0) return;
     fitAddon.fit();
     const dims = fitAddon.proposeDimensions();
-    if (dims) api.terminalResize({ cols: dims.cols, rows: dims.rows });
+    if (dims && dims.cols > 0 && dims.rows > 0) {
+      api.terminalResize({ cols: dims.cols, rows: dims.rows });
+    }
   } catch {}
+}
+
+function fitTerminalWhenReady(attempt = 0) {
+  const container = document.getElementById('terminal');
+  if (container && container.clientHeight > 0 && container.clientWidth > 0) {
+    fitTerminal();
+    // Still retry a few times — grid dimensions may shift as siblings render
+    if (attempt === 0) {
+      setTimeout(fitTerminal, 200);
+      setTimeout(fitTerminal, 500);
+    }
+    return;
+  }
+  // Container not visible yet — retry with requestAnimationFrame + fallback timeout
+  if (attempt < 20) {
+    requestAnimationFrame(() => fitTerminalWhenReady(attempt + 1));
+  } else {
+    // Final fallback after ~20 frames
+    setTimeout(fitTerminal, 300);
+  }
 }

@@ -8,6 +8,10 @@ import { renderStatus, initRepoPopover } from './components/status.js';
 import { loadChanges } from './components/viewer.js';
 import { selectFile } from './components/file-viewer.js';
 import { initUpdateBanner } from './components/update-banner.js';
+import { initSftpModal, refreshSftpControls } from './components/sftp-modal.js';
+import { initSftpSync } from './components/sftp-status.js';
+import { initSidebarTabs } from './components/sidebar-tabs.js';
+import { loadGitPanel } from './components/git-panel.js';
 
 // Wire file-tree click handler to file-viewer
 setFileSelectHandler(selectFile);
@@ -29,6 +33,9 @@ function init() {
 
   initUpdateBanner();
   initRepoPopover();
+  initSftpModal();
+  initSftpSync();
+  initSidebarTabs();
 
   // Welcome screen
   document.getElementById('selectFolderBtn').addEventListener('click', handleSelectFolder);
@@ -47,6 +54,7 @@ function init() {
     renderTree();
     renderStatus();
     if (state.viewerTab === 'changes') loadChanges();
+    if (state.sidebarTab === 'git') loadGitPanel();
     if (state.viewerTab === 'file' && state.activeFile) {
       selectFile(state.activeFile, state.activeFile.split('.').pop());
     }

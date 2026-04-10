@@ -5,6 +5,7 @@ import { initResize } from './resize.js';
 import { renderTree, initTreeDrag } from './file-tree.js';
 import { renderStatus } from './status.js';
 import { switchViewerTab, loadChanges } from './viewer.js';
+import { refreshSftpControls } from './sftp-modal.js';
 
 export async function openProject(folderPath) {
   try {
@@ -16,40 +17,53 @@ export async function openProject(folderPath) {
     state.expandedDirs.clear();
 
     document.getElementById('welcome').classList.add('hidden');
-    document.getElementById('app').classList.add('active');
+    const appEl = document.getElementById('app');
+    appEl.classList.add('active');
     document.getElementById('projectName').textContent = info.root;
     document.getElementById('statusBarPath').textContent = info.fullPath;
 
-    // Give the grid layout time to render before initializing xterm
-    setTimeout(async () => {
-      try {
-        initTerminal();
-        initTreeDrag();
-        initResize();
+    // Force the browser to compute the grid layout synchronously.
+    // Reading offsetHeight after display:none→grid triggers a reflow,
+    // guaranteeing child containers have real dimensions before we
+    // initialize xterm. Without this, fitAddon.fit() may compute 0 rows.
+    // eslint-disable-next-line no-unused-expressions
+    appEl.offsetHeight;
 
-        const [treeData, statusData] = await Promise.all([
-          api.getFileTree(),
-          api.getGitStatus(),
-        ]);
+    // Double rAF ensures at least one paint frame has completed.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
+        try {
+          initTerminal();
+          initTreeDrag();
+          initResize();
 
-        state.tree = treeData;
-        state.status = statusData;
-        state.changedPaths = new Set(statusData.files.map((f) => f.path));
+          const [treeData, statusData] = await Promise.all([
+            api.getFileTree(),
+            api.getGitStatus(),
+          ]);
 
-        renderTree();
-        renderStatus();
-        loadChanges();
+          state.tree = treeData;
+          state.status = statusData;
+          state.changedPaths = new Set(statusData.files.map((f) => f.path));
 
-        document.querySelectorAll('.viewer-tab').forEach((t) => {
-          t.onclick = () => switchViewerTab(t.dataset.tab);
-        });
+          renderTree();
+          renderStatus();
+          loadChanges();
 
-        // Focus terminal
-        term.focus();
-      } catch (err) {
-        console.error('[CC] post-open error:', err);
-      }
-    }, 150);
+          document.querySelectorAll('.viewer-tab').forEach((t) => {
+            t.onclick = () => switchViewerTab(t.dataset.tab);
+          });
+
+          // Refresh SFTP controls visibility
+          refreshSftpControls();
+
+          // Focus terminal
+          term.focus();
+        } catch (err) {
+          console.error('[CC] post-open error:', err);
+        }
+      });
+    });
   } catch (err) {
     console.error('[CC] openProject error:', err);
   }

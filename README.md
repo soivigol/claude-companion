@@ -8,12 +8,12 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 
 | Platform | Download | Notes |
 |----------|----------|-------|
-| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion-2.1.0-arm64.dmg) | M1/M2/M3/M4 |
-| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion-2.1.0.dmg) | Intel Macs |
-| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion.Setup.2.1.0.exe) | Standard installer |
-| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion.2.1.0.exe) | No install required |
-| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/Claude.Companion-2.1.0.AppImage) | Universal |
-| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.1.0/claude-companion_2.1.0_amd64.deb) | Debian/Ubuntu |
+| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion-2.2.0-arm64.dmg) | M1/M2/M3/M4 |
+| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion-2.2.0.dmg) | Intel Macs |
+| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion.Setup.2.2.0.exe) | Standard installer |
+| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion.2.2.0.exe) | No install required |
+| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion-2.2.0.AppImage) | Universal |
+| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/claude-companion_2.2.0_amd64.deb) | Debian/Ubuntu |
 
 [All releases](https://github.com/soivigol/claude-companion/releases)
 
@@ -23,6 +23,9 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 - **Embedded terminal** (center pane) — runs Claude Code CLI directly, auto-launches on project open
 - **Diff & file viewer** (right pane) — live git diffs, commit history, syntax-highlighted file viewer with inline change highlights
 - **Inline code editor** — edit files directly with CodeMirror 6 (syntax highlighting, bracket matching, search/replace, multi-cursor)
+- **Git operations panel** — Source Control tab in the sidebar for one-click commit and push with smart auto-generated commit messages
+- **Multi-repo git** — projects with multiple nested repos get independent commit/push sections per repository
+- **SFTP sync** — push files to remote SFTP servers with configurable profiles, ignore patterns, and conflict detection
 - **Native tabs on macOS** — Cmd+T to open multiple projects, each tab is fully independent
 - **Multi-window support** — open multiple projects simultaneously on any platform
 - **Light/dark theme** — toggle with the button in the header, persists across sessions
@@ -99,12 +102,19 @@ src/
   css/styles.css      All application CSS
 lib/
   platform.cjs        Shell detection, PATH, terminal env, window/menu options
-  git-helpers.cjs     File tree, git status, diffs, commits (pure functions)
+  git-helpers.cjs     File tree, git status, diffs, commits, stage, push (pure functions)
+  git-commit-message.cjs  Smart commit message generator
+  git-facade.cjs      Unified single/multi-repo routing
+  git-multi-repo.cjs  Aggregates git ops across nested repos
+  git-discovery.cjs   Discovers nested .git repos
   ipc-handlers.cjs    All IPC handler registration
   terminal-setup.cjs  PTY spawn with dependency injection
   file-watcher.cjs    Chokidar watcher setup
   window-manager.cjs  Window creation, context lookup, cleanup
   auto-updater.cjs    electron-updater wrapper
+  sftp-config.cjs     SFTP config CRUD via electron-store
+  sftp-client.cjs     SFTP transport wrapper (ssh2-sftp-client)
+  sftp-sync.cjs       Sync engine with conflict detection
   logger.cjs          Debug log factory
 scripts/              Post-packaging fixes (spawn-helper, icon)
 assets/               App icons (.icns, .ico, .png)

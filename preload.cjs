@@ -29,6 +29,19 @@ contextBridge.exposeInMainWorld('companion', {
   getCommits: () => ipcRenderer.invoke('get-commits'),
   getCommitDiff: (hash) => ipcRenderer.invoke('get-commit-diff', hash),
 
+  // Git write operations
+  gitStageAll: () => ipcRenderer.invoke('git-stage-all'),
+  gitCommit: (message) => ipcRenderer.invoke('git-commit', message),
+  gitPush: () => ipcRenderer.invoke('git-push'),
+  getRemoteInfo: () => ipcRenderer.invoke('git-get-remote-info'),
+  generateCommitMessage: (repoFilter) => ipcRenderer.invoke('git-generate-commit-message', repoFilter || null),
+
+  // Per-repo git operations (multi-repo)
+  gitStageAllRepo: (repoName) => ipcRenderer.invoke('git-stage-all-repo', repoName),
+  gitCommitRepo: (repoName, message) => ipcRenderer.invoke('git-commit-repo', repoName, message),
+  gitPushRepo: (repoName) => ipcRenderer.invoke('git-push-repo', repoName),
+  getRemoteInfoRepo: (repoName) => ipcRenderer.invoke('git-get-remote-info-repo', repoName),
+
   // Terminal
   terminalInput: (data) => ipcRenderer.send('terminal-input', data),
   terminalResize: (size) => ipcRenderer.send('terminal-resize', size),
@@ -49,6 +62,22 @@ contextBridge.exposeInMainWorld('companion', {
     const handler = (_, data) => cb(data);
     ipcRenderer.on('file-change', handler);
     return () => ipcRenderer.removeListener('file-change', handler);
+  },
+
+  // SFTP
+  sftpGetConfigs: () => ipcRenderer.invoke('sftp-get-configs'),
+  sftpGetPendingCount: () => ipcRenderer.invoke('sftp-get-pending-count'),
+  sftpGetProjectConfig: () => ipcRenderer.invoke('sftp-get-project-config'),
+  sftpSaveConfig: (data) => ipcRenderer.invoke('sftp-save-config', data),
+  sftpRemoveConfig: (configId) => ipcRenderer.invoke('sftp-remove-config', configId),
+  sftpTestConnection: (data) => ipcRenderer.invoke('sftp-test-connection', data),
+  sftpStartSync: (data) => ipcRenderer.invoke('sftp-start-sync', data),
+  sftpResolveConflicts: (resolutions) => ipcRenderer.invoke('sftp-resolve-conflicts', resolutions),
+  sftpSelectKeyFile: () => ipcRenderer.invoke('sftp-select-key-file'),
+  onSftpProgress: (cb) => {
+    const handler = (_, data) => cb(data);
+    ipcRenderer.on('sftp-progress', handler);
+    return () => ipcRenderer.removeListener('sftp-progress', handler);
   },
 
   // Auto-update

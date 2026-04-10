@@ -30,15 +30,28 @@
     <div class="header-left">
       <div class="logo">CC</div>
       <span class="project-name" id="projectName">Project</span>
+      <button class="change-folder-btn" id="changeFolderBtn" title="Change folder">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <span class="header-sep"></span>
       <div class="branch-badge" id="branchBadge">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Z"/></svg>
         <span id="branchName">&mdash;</span>
         <div class="repo-popover" id="repoPopover"></div>
       </div>
-      <button class="change-folder-btn" id="changeFolderBtn">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        Change
-      </button>
+      <span class="header-sep"></span>
+      <div class="sftp-controls" id="sftpControls">
+        <div class="sftp-sync-wrapper">
+          <button class="sftp-sync-btn" id="sftpSyncBtn" title="Sync to SFTP server" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </button>
+          <span class="sftp-pending-badge" id="sftpPendingBadge" style="display:none">0</span>
+        </div>
+        <span class="sftp-status" id="sftpStatus"></span>
+        <button class="sftp-settings-btn" id="sftpSettingsBtn" title="SFTP Settings">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
     </div>
     <div class="header-right">
       <span id="statusFiles">0 changed files</span>
@@ -48,11 +61,22 @@
   </header>
 
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <span class="sidebar-title">Explorer</span>
-      <span class="file-count" id="fileCount">0</span>
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" data-sidebar="explorer" title="Explorer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <button class="sidebar-tab" data-sidebar="git" title="Source Control">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Z"/></svg>
+      </button>
     </div>
-    <div class="tree-container" id="treeContainer"></div>
+    <div class="sidebar-view" id="explorerView">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Explorer</span>
+        <span class="file-count" id="fileCount">0</span>
+      </div>
+      <div class="tree-container" id="treeContainer"></div>
+    </div>
+    <div class="sidebar-view" id="gitView" style="display:none"></div>
   </aside>
 
   <div class="resize-handle" id="leftHandle"></div>
@@ -75,6 +99,9 @@
       <div class="viewer-tab" data-tab="file" id="fileTab" style="display:none">
         <span class="tab-name">File</span>
       </div>
+      <button class="viewer-fullscreen-btn" id="viewerFullscreenBtn" title="Toggle fullscreen">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
     </div>
     <div class="viewer-panel" id="changesPanel"></div>
     <div class="viewer-panel" id="commitsPanel" style="display:none"></div>
@@ -90,6 +117,41 @@
       <span id="statusBarPath"></span>
     </div>
   </footer>
+</div>
+
+<!-- SFTP Config Modal -->
+<div class="sftp-modal" id="sftpModal">
+  <div class="sftp-modal-backdrop" id="sftpModalBackdrop"></div>
+  <div class="sftp-modal-content">
+    <div class="sftp-modal-sidebar">
+      <div class="sftp-modal-sidebar-header">
+        <span class="sftp-modal-sidebar-title">Servers</span>
+        <button class="sftp-add-btn" id="sftpAddBtn" title="Add server">+</button>
+      </div>
+      <div class="sftp-server-list" id="sftpServerList"></div>
+    </div>
+    <div class="sftp-modal-form" id="sftpModalForm">
+      <div class="sftp-form-placeholder">Select or add a server configuration</div>
+    </div>
+  </div>
+</div>
+
+<!-- SFTP Conflict Dialog -->
+<div class="sftp-conflict-overlay" id="sftpConflictOverlay">
+  <div class="sftp-conflict-dialog">
+    <div class="sftp-conflict-header">
+      <h3>File Conflicts</h3>
+      <p class="sftp-conflict-desc">These remote files are newer than local. Choose action per file:</p>
+    </div>
+    <div class="sftp-conflict-actions-all">
+      <button class="sftp-btn sftp-btn-small" id="sftpOverwriteAll">Overwrite All</button>
+      <button class="sftp-btn sftp-btn-small sftp-btn-secondary" id="sftpSkipAll">Skip All</button>
+    </div>
+    <div class="sftp-conflict-list" id="sftpConflictList"></div>
+    <div class="sftp-conflict-footer">
+      <button class="sftp-btn sftp-btn-primary" id="sftpConflictContinue">Continue Sync</button>
+    </div>
+  </div>
 </div>
 
 <script src="./dist/main.js"></script>

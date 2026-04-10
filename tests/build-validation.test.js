@@ -29,6 +29,9 @@ describe('required project files', () => {
     'assets/icon.png',
     'assets/icon.icns',
     'assets/icon.ico',
+    'lib/sftp-config.cjs',
+    'lib/sftp-client.cjs',
+    'lib/sftp-sync.cjs',
   ];
 
   for (const file of requiredFiles) {

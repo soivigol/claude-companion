@@ -4,6 +4,30 @@ All notable changes to Claude Companion are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+## [2.2.0] - 2026-04-10
+
+### Added
+- Git operations panel — new sidebar tab (Source Control) alongside the file explorer for commit, push, and branch management
+- Smart commit message generator that auto-detects change type (feat, fix, chore, test, docs, style) from file paths and diff content
+- One-click "Commit All" stages all changes and commits with the generated (or edited) message
+- "Commit & Push" button for combined commit + push in a single action
+- Standalone "Push" button shown on clean working tree when unpushed commits exist
+- Multi-repo support: each repository with changes gets its own independent commit section with separate message, commit, and push buttons
+- Ahead/behind tracking — detects unpushed commits per repo via upstream comparison
+- SFTP sync — push local project files to remote SFTP servers with a single click
+- SFTP configuration modal with support for multiple server profiles per project
+- Authentication via password, SSH private key (with passphrase), or SSH agent
+- Hierarchical config: root-level config takes priority; subfolder configs available when no root is set
+- Per-server ignore patterns (separate from .gitignore) and configurable upload concurrency
+- Conflict detection — warns when remote files are newer, with per-file overwrite/skip resolution
+- Sync status indicator in the header (syncing/done/error)
+- Test connection button to verify SFTP credentials before syncing
+
+### Changed
+- Left sidebar now has tabbed navigation (Explorer / Source Control) instead of a fixed file tree
+
 ## [2.1.2] - 2026-04-08
 
 ### Added

@@ -5,8 +5,13 @@ export const state = {
   expandedDirs: new Set(),
   changedPaths: new Set(),
   viewerTab: 'changes',
+  sidebarTab: 'explorer',
   sidebarWidth: 260,
   viewerWidth: 400,
   projectOpen: false,
   theme: localStorage.getItem('cc-theme') || 'light',
+  viewerFullscreen: false,
+  sftpConfigs: [],
+  sftpSyncStatus: 'idle',
+  sftpConflicts: [],
 };

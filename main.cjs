@@ -68,6 +68,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('check-for-updates', () => updater?.checkForUpdates());
   ipcMain.handle('download-update', () => updater?.downloadUpdate());
   ipcMain.handle('install-update', () => updater?.quitAndInstall());
+  ipcMain.handle('download-dmg', () => updater?.downloadDmg());
   ipcMain.handle('open-release-page', () => updater?.openReleasePage());
 
   if (IS_MAC) {

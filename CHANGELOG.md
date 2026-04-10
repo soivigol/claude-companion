@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.5] - 2026-04-10
+
+### Fixed
+- Update install fallback now downloads the DMG internally (via Electron) instead of opening the browser, avoiding macOS Gatekeeper quarantine ("damaged" error)
+- Quarantine attribute automatically removed from downloaded DMG before opening
+
+### Changed
+- Install-failed flow: badge shows "Install vX.Y.Z" → downloads DMG to ~/Downloads → removes quarantine → opens DMG in Finder → badge shows "DMG ready — drag to Applications"
+
 ## [2.2.4] - 2026-04-10
 
 ### Changed

@@ -26,7 +26,16 @@ export function initUpdateBanner() {
         container.querySelector('#updateAction').onclick = () => api.installUpdate();
         break;
       case 'install-failed':
-        showDownloadLink(container, data.version);
+        showDmgDownload(container, data.version);
+        break;
+      case 'downloading-dmg':
+        container.innerHTML = `<span class="update-badge downloading">Downloading DMG…</span>`;
+        break;
+      case 'downloading-dmg-progress':
+        container.innerHTML = `<span class="update-badge downloading">Downloading DMG… ${data.percent}%</span>`;
+        break;
+      case 'dmg-ready':
+        container.innerHTML = `<span class="update-badge ready">DMG ready — drag to Applications</span>`;
         break;
       case 'error':
         showRetry(container, pendingVersion);
@@ -54,7 +63,11 @@ function showRetry(container, version) {
   };
 }
 
-function showDownloadLink(container, version) {
-  container.innerHTML = `<span class="update-badge ready" id="updateAction">Download v${version}</span>`;
-  container.querySelector('#updateAction').onclick = () => api.openReleasePage();
+function showDmgDownload(container, version) {
+  container.innerHTML = `<span class="update-badge ready" id="updateAction">Install v${version}</span>`;
+  container.querySelector('#updateAction').onclick = () => {
+    api.downloadDmg().catch(() => {
+      showDmgDownload(container, version);
+    });
+  };
 }

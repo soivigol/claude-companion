@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.4] - 2026-04-10
+
+### Changed
+- Test release to verify auto-updater install-failed fallback from v2.2.3
+
 ## [2.2.3] - 2026-04-10
 
 ### Fixed

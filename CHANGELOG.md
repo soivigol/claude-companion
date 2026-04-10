@@ -6,6 +6,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-04-10
+
+### Fixed
+- Update badge not responding to clicks — download now shows immediate "Starting download…" feedback on click
+- Silent update errors — failed downloads now show a red "Retry update" badge instead of disappearing silently
+- Unhandled promise rejection when `downloadUpdate()` fails before the error event fires
+
+### Added
+- Error state styling for the update badge (red retry button)
+- Stack trace logging for update errors in `~/cc-debug.log`
+
 ## [2.2.0] - 2026-04-10
 
 ### Added

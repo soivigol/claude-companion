@@ -1105,6 +1105,13 @@ html, body {
 .update-badge.ready:hover {
   background: var(--accent); color: #fff;
 }
+.update-badge.error {
+  background: var(--red-dim, rgba(248,81,73,0.15)); color: var(--red, #f85149);
+  cursor: pointer;
+}
+.update-badge.error:hover {
+  background: var(--red, #f85149); color: #fff;
+}
 
 /* ===== SFTP Controls (header) ===== */
 

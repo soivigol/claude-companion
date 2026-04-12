@@ -13,6 +13,7 @@ export async function openProject(folderPath) {
     if (!info) return;
 
     state.projectOpen = true;
+    state.projectRoot = info.fullPath;
     state.activeFile = null;
     state.expandedDirs.clear();
 

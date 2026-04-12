@@ -682,8 +682,32 @@ html, body {
 .tree-children.open { display: block; }
 
 /* Drag feedback on tree items */
-.tree-item[draggable="true"] { cursor: grab; }
 .tree-item[draggable="true"]:active { cursor: grabbing; }
+
+/* --- Context menu --- */
+
+.context-menu {
+  position: fixed;
+  z-index: 300;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 0;
+  min-width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.context-menu-item {
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.context-menu-item:hover {
+  background: var(--accent-dim);
+}
 
 /* --- Resize handles --- */
 
@@ -1166,10 +1190,21 @@ html, body {
   pointer-events: none;
 }
 
-.sftp-status {
+.sftp-statusbar {
+  display: inline-flex; align-items: center; gap: 4px;
   font-size: 10px;
   font-family: var(--font-mono);
   white-space: nowrap;
+}
+
+.sftp-statusbar-icon {
+  flex-shrink: 0;
+  animation: sftp-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes sftp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .sftp-status-syncing { color: var(--blue); }
@@ -1412,6 +1447,31 @@ html, body {
 }
 
 /* Auth options */
+
+.sftp-protocol-options {
+  display: flex; gap: 6px;
+}
+
+.sftp-protocol-option {
+  padding: 4px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.sftp-protocol-option:hover {
+  background: var(--bg-hover);
+}
+
+.sftp-protocol-option.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 .sftp-auth-options {
   display: flex; gap: 6px;

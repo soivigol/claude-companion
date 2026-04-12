@@ -9,6 +9,7 @@ export const state = {
   sidebarWidth: 260,
   viewerWidth: 400,
   projectOpen: false,
+  projectRoot: '',
   theme: localStorage.getItem('cc-theme') || 'light',
   viewerFullscreen: false,
   sftpConfigs: [],

@@ -72,6 +72,7 @@ contextBridge.exposeInMainWorld('companion', {
   sftpRemoveConfig: (configId) => ipcRenderer.invoke('sftp-remove-config', configId),
   sftpTestConnection: (data) => ipcRenderer.invoke('sftp-test-connection', data),
   sftpStartSync: (data) => ipcRenderer.invoke('sftp-start-sync', data),
+  sftpSyncFolder: (data) => ipcRenderer.invoke('sftp-sync-folder', data),
   sftpResolveConflicts: (resolutions) => ipcRenderer.invoke('sftp-resolve-conflicts', resolutions),
   sftpSelectKeyFile: () => ipcRenderer.invoke('sftp-select-key-file'),
   onSftpProgress: (cb) => {

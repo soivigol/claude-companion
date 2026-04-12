@@ -8,12 +8,12 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 
 | Platform | Download | Notes |
 |----------|----------|-------|
-| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion-2.2.0-arm64.dmg) | M1/M2/M3/M4 |
-| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion-2.2.0.dmg) | Intel Macs |
-| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion.Setup.2.2.0.exe) | Standard installer |
-| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion.2.2.0.exe) | No install required |
-| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/Claude.Companion-2.2.0.AppImage) | Universal |
-| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.2.0/claude-companion_2.2.0_amd64.deb) | Debian/Ubuntu |
+| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.7/Claude.Companion-2.2.7-arm64.dmg) | M1/M2/M3/M4 |
+| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.7/Claude.Companion-2.2.7.dmg) | Intel Macs |
+| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.7/Claude.Companion.Setup.2.2.7.exe) | Standard installer |
+| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.7/Claude.Companion.2.2.7.exe) | No install required |
+| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.2.7/Claude.Companion-2.2.7.AppImage) | Universal |
+| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.2.7/claude-companion_2.2.7_amd64.deb) | Debian/Ubuntu |
 
 [All releases](https://github.com/soivigol/claude-companion/releases)
 
@@ -25,7 +25,7 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 - **Inline code editor** — edit files directly with CodeMirror 6 (syntax highlighting, bracket matching, search/replace, multi-cursor)
 - **Git operations panel** — Source Control tab in the sidebar for one-click commit and push with smart auto-generated commit messages
 - **Multi-repo git** — projects with multiple nested repos get independent commit/push sections per repository
-- **SFTP sync** — push files to remote SFTP servers with configurable profiles, ignore patterns, and conflict detection
+- **SFTP & FTP sync** — push files to remote SFTP or plain FTP servers with configurable profiles, ignore patterns, and conflict detection. Right-click any folder (including nested descendants of a configured folder) to sync just that subtree, preserving the remote path structure
 - **Native tabs on macOS** — Cmd+T to open multiple projects, each tab is fully independent
 - **Multi-window support** — open multiple projects simultaneously on any platform
 - **Light/dark theme** — toggle with the button in the header, persists across sessions

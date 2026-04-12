@@ -94,7 +94,9 @@ function renderConfigForm(config) {
   const isRoot = config ? config._isRoot : true;
   selectedConfigId = c.id || null;
 
+  const protocol = c.protocol || 'sftp';
   const authType = c.agent ? 'agent' : c.privateKeyPath ? 'key' : 'password';
+  const isFtp = protocol === 'ftp';
 
   const form = document.getElementById('sftpModalForm');
   form.innerHTML = `
@@ -109,6 +111,14 @@ function renderConfigForm(config) {
         <input class="sftp-field-input" id="sftpName" value="${escapeAttr(c.name)}" placeholder="My Server">
       </div>
 
+      <div class="sftp-field-group">
+        <label class="sftp-field-label">Protocol</label>
+        <div class="sftp-protocol-options">
+          <button class="sftp-protocol-option ${protocol === 'sftp' ? 'active' : ''}" data-protocol="sftp">SFTP</button>
+          <button class="sftp-protocol-option ${protocol === 'ftp' ? 'active' : ''}" data-protocol="ftp">FTP</button>
+        </div>
+      </div>
+
       <div class="sftp-field-row">
         <div class="sftp-field-group sftp-field-flex">
           <label class="sftp-field-label">Host</label>
@@ -116,7 +126,7 @@ function renderConfigForm(config) {
         </div>
         <div class="sftp-field-group sftp-field-small">
           <label class="sftp-field-label">Port</label>
-          <input class="sftp-field-input" id="sftpPort" type="number" value="${c.port || 22}">
+          <input class="sftp-field-input" id="sftpPort" type="number" value="${c.port || (isFtp ? 21 : 22)}">
         </div>
       </div>
 
@@ -143,7 +153,7 @@ function renderConfigForm(config) {
         <input class="sftp-field-input sftp-context-input ${isRoot ? 'hidden' : ''}" id="sftpContext" value="${escapeAttr(c.context === '.' ? '' : c.context)}" placeholder="frontend">
       </div>
 
-      <div class="sftp-field-group">
+      <div class="sftp-field-group sftp-auth-group" ${isFtp ? 'style="display:none"' : ''}>
         <label class="sftp-field-label">Authentication</label>
         <div class="sftp-auth-options">
           <button class="sftp-auth-option ${authType === 'password' ? 'active' : ''}" data-auth="password">Password</button>
@@ -153,7 +163,7 @@ function renderConfigForm(config) {
       </div>
 
       <div class="sftp-auth-fields" id="sftpAuthFields">
-        ${renderAuthFields(authType, c)}
+        ${renderAuthFields(isFtp ? 'password' : authType, c)}
       </div>
 
       <div class="sftp-field-group">
@@ -235,6 +245,30 @@ function wireFormEvents(isNew, originalConfig) {
     radio.addEventListener('change', () => {
       const contextInput = document.getElementById('sftpContext');
       contextInput.classList.toggle('hidden', radio.value === 'root');
+    });
+  });
+
+  // Protocol toggle
+  document.querySelectorAll('.sftp-protocol-option').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sftp-protocol-option').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const isFtp = btn.dataset.protocol === 'ftp';
+      const portInput = document.getElementById('sftpPort');
+      const currentPort = parseInt(portInput.value, 10);
+      if (isFtp && currentPort === 22) portInput.value = '21';
+      if (!isFtp && currentPort === 21) portInput.value = '22';
+
+      const authGroup = document.querySelector('.sftp-auth-group');
+      if (authGroup) authGroup.style.display = isFtp ? 'none' : '';
+
+      if (isFtp) {
+        document.querySelectorAll('.sftp-auth-option').forEach((b) => b.classList.remove('active'));
+        const pwBtn = document.querySelector('.sftp-auth-option[data-auth="password"]');
+        if (pwBtn) pwBtn.classList.add('active');
+        document.getElementById('sftpAuthFields').innerHTML = renderAuthFields('password', buildConfigFromForm(originalConfig));
+        wireAuthSubEvents();
+      }
     });
   });
 
@@ -331,7 +365,7 @@ function buildConfigFromForm(original) {
     host: document.getElementById('sftpHost').value.trim(),
     port: parseInt(document.getElementById('sftpPort').value, 10) || 22,
     username: document.getElementById('sftpUsername').value.trim(),
-    protocol: 'sftp',
+    protocol: document.querySelector('.sftp-protocol-option.active')?.dataset.protocol || 'sftp',
     remotePath: document.getElementById('sftpRemotePath').value.trim() || '/',
     password: null,
     privateKeyPath: null,

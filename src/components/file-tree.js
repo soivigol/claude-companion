@@ -1,4 +1,6 @@
 import { state } from '../core/state.js';
+import { showContextMenu } from './context-menu.js';
+import { startFolderSync } from './sftp-status.js';
 
 let fileSelectHandler = null;
 
@@ -115,4 +117,46 @@ export function renderTree() {
     if (fileItem && fileSelectHandler) fileSelectHandler(fileItem.dataset.file, fileItem.dataset.ext);
   };
 
+  container.oncontextmenu = (e) => {
+    const dirItem = e.target.closest('[data-dir]');
+    if (!dirItem || !state.sftpConfigs?.length) return;
+
+    const relativePath = dirItem.dataset.dir;
+
+    // Find all configs that match this folder — either exactly, as an ancestor,
+    // or as a root config (which matches any folder). For each match, compute
+    // the subPath relative to the config's context.
+    const matches = [];
+    for (const c of state.sftpConfigs) {
+      if (c.context === '.') {
+        matches.push({ config: c, subPath: relativePath });
+      } else if (c.context === relativePath) {
+        matches.push({ config: c, subPath: '' });
+      } else if (relativePath.startsWith(c.context + '/')) {
+        matches.push({ config: c, subPath: relativePath.slice(c.context.length + 1) });
+      }
+    }
+    if (!matches.length) return;
+
+    e.preventDefault();
+
+    const items = [];
+    for (const { config, subPath } of matches) {
+      const label = config.name || config.host;
+      const scope = subPath ? `"${subPath}"` : `"${label}"`;
+      items.push({
+        label: subPath
+          ? `Sync ${scope} to "${label}"`
+          : `Sync changed files to "${label}"`,
+        onClick: () => startFolderSync(config, { subPath }),
+      });
+      items.push({
+        label: subPath
+          ? `Upload all ${scope} to "${label}"`
+          : `Upload all files to "${label}"`,
+        onClick: () => startFolderSync(config, { subPath, force: true }),
+      });
+    }
+    showContextMenu(e.clientX, e.clientY, items);
+  };
 }

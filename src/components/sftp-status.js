@@ -70,34 +70,51 @@ async function startSync() {
   await api.sftpStartSync({ passphrases });
 }
 
+export async function startFolderSync(config, { force = false, subPath = '' } = {}) {
+  if (state.sftpSyncStatus === 'syncing' || state.sftpSyncStatus === 'uploading') return;
+
+  const passphrases = {};
+  if (config.passphrase === true) {
+    const passphrase = prompt(`Enter passphrase for SSH key (${config.name || config.host}):`);
+    if (passphrase === null) return;
+    passphrases[config.id] = passphrase;
+  }
+
+  const label = subPath
+    ? (force ? `Uploading all in "${subPath}"...` : `Syncing "${subPath}"...`)
+    : (force ? 'Uploading all...' : 'Starting...');
+  renderSftpStatus('syncing', label);
+  await api.sftpSyncFolder({ configId: config.id, passphrases, force, subPath });
+}
+
 function renderSftpStatus(status, message) {
-  const el = document.getElementById('sftpStatus');
+  const el = document.getElementById('sftpStatusBar');
   const syncBtn = document.getElementById('sftpSyncBtn');
 
   if (status === 'idle') {
-    el.textContent = '';
-    el.className = 'sftp-status';
+    el.innerHTML = '';
+    el.className = 'sftp-statusbar';
     syncBtn.disabled = false;
     return;
   }
 
   if (status === 'syncing') {
-    el.textContent = message || 'Syncing...';
-    el.className = 'sftp-status sftp-status-syncing';
+    el.innerHTML = `<svg class="sftp-statusbar-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>${escapeHtml(message || 'Syncing...')}`;
+    el.className = 'sftp-statusbar sftp-status-syncing';
     syncBtn.disabled = true;
     return;
   }
 
   if (status === 'done') {
     el.textContent = message || 'Synced';
-    el.className = 'sftp-status sftp-status-done';
+    el.className = 'sftp-statusbar sftp-status-done';
     syncBtn.disabled = false;
     return;
   }
 
   if (status === 'error') {
     el.textContent = message || 'Error';
-    el.className = 'sftp-status sftp-status-error';
+    el.className = 'sftp-statusbar sftp-status-error';
     syncBtn.disabled = false;
   }
 }

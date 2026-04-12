@@ -6,6 +6,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.7] - 2026-04-11
+
+### Added
+- FTP protocol support — configure servers for plain FTP in addition to SFTP, with automatic default port switching (21 for FTP, 22 for SFTP)
+- Right-click context menu on folders — sync a specific folder from the file tree when it has an SFTP/FTP config, with "Sync changed files" and "Upload all files" options
+- Nested folder sync — right-click any descendant of a configured folder to sync just that subtree, preserving the relative path on the remote server
+- Upload status now shows in the bottom status bar with an animated upload icon while syncing
+
+### Changed
+- Sync button in the header is now disabled correctly when a folder sync is triggered from the right-click menu
+- Folder sync from the context menu only clears the changed-files tracking for files inside that folder, leaving other pending changes intact
+
+### Fixed
+- Pending upload badge counted files outside any configured context, showing misleading numbers
+- Sync to subfolder configs (non-root context) was silently uploading zero files due to a path prefix mismatch between tracked changed files and the file list
+- Renderer bundle dead code and minor file-tree rendering glitches after recent drag changes
+
 ## [2.2.6] - 2026-04-10
 
 ### Added

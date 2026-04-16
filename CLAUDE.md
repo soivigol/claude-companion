@@ -10,7 +10,8 @@ Claude Companion is a native cross-platform Electron desktop app (macOS, Windows
 - **`preload.cjs`** — Context-isolated IPC bridge exposing `window.companion` API to the renderer. Includes `platform` property, `getPathForFile()` (via `webUtils`), auto-update channels, and listener cleanup (disposers).
 - **`src/main.js`** — Renderer entry point bundled by esbuild. Imports from `core/` and `components/`, wires cross-module connections, runs init.
 - **`src/core/`** — Shared state, API bridge, pure utilities: `api.js`, `state.js`, `diff.js`, `themes-data.js`, `highlight-setup.js`, `editor-setup.js`.
-- **`src/components/`** — UI modules: `terminal.js`, `themes.js`, `file-tree.js`, `file-viewer.js`, `viewer.js`, `commits.js`, `status.js`, `resize.js`, `project.js`, `update-banner.js`, `sidebar-tabs.js`, `git-panel.js`.
+- **`src/components/`** — UI modules: `terminal.js`, `themes.js`, `file-tree.js`, `file-viewer.js`, `viewer.js`, `commits.js`, `status.js`, `resize.js`, `project.js`, `update-banner.js`, `sidebar-tabs.js`, `git-panel.js`, `input-box.js`.
+- **`src/components/input-box.js`** — Rich text input box at the bottom of the terminal pane. CodeMirror 6 editor with `MatchDecorator`-based syntax highlighting for `/commands`, `@mentions`, and file paths. Autocomplete via `@codemirror/autocomplete` for slash commands (scanned from `~/.claude/skills/` and project `.claude/skills/`) and `@` file/folder mentions (from `state.tree`). Toggle with Cmd/Ctrl+I, persisted in localStorage.
 - **`src/css/styles.css`** — All application CSS, bundled by esbuild into `dist/main.css`.
 - **`index.html`** — Three-pane layout shell. Light and dark theme via `[data-theme]` CSS variables. CSP meta tag.
 - **`lib/platform.cjs`** — Pure functions for shell detection, PATH handling, terminal env, window options, and menu templates. All accept overrides for testability.
@@ -47,6 +48,8 @@ npm run package:win  # Windows only (.exe)
 npm run package:linux # Linux only (.AppImage, .deb)
 ```
 
+**IMPORTANT — dev workflow**: After code changes, always use `npm run build && npm run rebuild && npm start`. The `rebuild` step recompiles `node-pty` for Electron's architecture. Skipping it is the #1 cause of "terminal not appearing" — see Known Pitfalls below.
+
 ## Key Patterns
 
 - **Per-window isolation**: Each window/tab has independent state (`windows` Map). IPC handlers use `BrowserWindow.fromWebContents(event.sender)` to route to the correct context.
@@ -61,6 +64,7 @@ npm run package:linux # Linux only (.AppImage, .deb)
 - **SFTP sync**: Manual push to remote SFTP servers. Config stored in electron-store with hierarchical resolution (root overrides subfolders). Auth via password, SSH key, or agent. Conflict detection warns on remote-newer files. Uses `ssh2-sftp-client` and `picomatch`.
 - **Git operations panel**: Sidebar tab (Source Control) with commit, push, and smart message generation. Single-repo: one unified form. Multi-repo: each repo gets its own section with independent commit/push. Detects unpushed commits and shows Push button on clean working tree.
 - **Sidebar tabs**: Left sidebar has tabbed navigation (Explorer / Source Control). `src/components/sidebar-tabs.js` handles switching, `state.sidebarTab` tracks active view.
+- **Rich input box**: Toggleable CodeMirror 6 editor at the bottom of the terminal pane. Sends plain text to the PTY on Enter. Syntax highlighting for `/commands`, `@mentions`, and file paths via `MatchDecorator`. Autocomplete for slash commands (scanned from skills directories) and `@` file mentions (from `state.tree`). Drag-and-drop from file tree inserts path into editor (not terminal). Multi-line via Shift+Enter, uses `\x1b\r` escape sequence for Claude Code newlines.
 
 ## Testing
 
@@ -94,13 +98,32 @@ The xterm terminal can render as invisible (0 rows) when `fitAddon.fit()` is cal
 
 **If you hit this**: Never use a fixed `setTimeout` delay to wait for CSS grid layout. Always use `requestAnimationFrame` + dimension checks. Also force a synchronous reflow (`appEl.offsetHeight`) after toggling `display: none → grid`.
 
-### Terminal missing after `npm install` (node-pty native rebuild)
+### Terminal invisible after adding/changing sibling elements in the terminal pane
 
-After any `npm install` that adds or removes packages, `node-pty`'s native `.node` binary may become invalid because npm can relink native dependencies. The terminal silently fails to load and the error only appears in `~/cc-debug.log`.
+Adding or modifying elements that share the `.terminal-pane` flex container (e.g. the input box below `#terminal`) can cause xterm to render with 0 rows. The `ResizeObserver` fires during the layout transition when the terminal container momentarily has zero height.
 
-**Prevention**: Always run `npm run rebuild` after `npm install`. This is already documented in Commands but easy to forget.
+**Root cause**: Any code that calls `fitAddon.fit()` directly (without zero-dimension guards) during a flex layout shift will compute 0 rows. This includes `ResizeObserver` callbacks, `EditorView.updateListener` handlers from CodeMirror, or any resize-triggered logic.
 
-**If you hit this**: Run `npm run rebuild` then `npm start`.
+**Prevention rules for any code that triggers `fitAddon.fit()`**:
+1. **Never call `fitAddon.fit()` directly** — always call `fitTerminal()` which guards against zero-dimension containers.
+2. **Always use `requestAnimationFrame`** when responding to layout changes from sibling elements (e.g. CodeMirror geometry updates) before calling `fitTerminal()`.
+3. **`ResizeObserver` callbacks** must use `fitTerminal()`, not inline `fitAddon.fit()` calls.
+4. **After toggling sibling visibility** (e.g. showing/hiding the input box), call `requestAnimationFrame(() => fitTerminal())` to let the flex layout settle first.
+
+**If you hit this**: Check that no code path calls `fitAddon.fit()` without dimension guards. Search for `fitAddon.fit` — every call site should be inside `fitTerminal()` or have equivalent `clientHeight > 0 && clientWidth > 0` checks.
+
+### Terminal missing — node-pty native rebuild required
+
+The `node-pty` native binary (`pty.node`) can become invalid (wrong architecture or stale linking) after `npm install`, `npm run build`, or any code changes that trigger a full dev restart. The terminal silently fails to load — the app opens, the terminal pane is visible, but no shell/PTY content appears. The error only shows in `~/cc-debug.log` as `FAILED to load node-pty: dlopen(...incompatible architecture...)`.
+
+**This is the most common cause of "the terminal disappeared after code changes."**
+
+**Prevention**: **Always run `npm run rebuild` before `npm start`** when testing changes. The safe dev workflow is:
+```bash
+npm run build && npm run rebuild && npm start
+```
+
+**If you hit this**: Check `~/cc-debug.log` for `FAILED to load node-pty`. If present, run `npm run rebuild` then `npm start`.
 
 ## Changelog
 

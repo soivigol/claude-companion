@@ -6,6 +6,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.8] - 2026-04-16
+
+### Added
+- Rich text input box — a CodeMirror 6-powered editor fixed at the bottom of the terminal pane for composing messages to Claude Code with syntax highlighting
+- Slash command autocomplete — type `/` to see a dropdown of all available commands and skills (scanned from `~/.claude/skills/` and project `.claude/skills/`)
+- File mention autocomplete — type `@` to browse and insert project files and folders from the tree
+- Toggle input box visibility with Cmd+I / Ctrl+I (persists across sessions)
+- Drag-and-drop files from the sidebar into the rich editor inserts the path as text (cursor moves to end)
+- Multi-line composition with Shift+Enter, submitted with Enter
+- Theme-aware styling — input box and autocomplete dropdown follow light/dark theme
+
+### Fixed
+- Terminal ResizeObserver called `fitAddon.fit()` without zero-dimension guards, causing invisible terminal when sibling elements changed the flex layout
+- Drag-and-drop from sidebar no longer fires in both the terminal and input box simultaneously
+
 ## [2.2.7] - 2026-04-11
 
 ### Added

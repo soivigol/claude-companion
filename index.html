@@ -83,8 +83,18 @@
   <main class="terminal-pane">
     <div class="terminal-header">
       <span class="terminal-title">Claude Code</span>
+      <button class="input-box-toggle active" id="inputBoxToggle" title="Toggle input box (Ctrl+I)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+      </button>
     </div>
     <div id="terminal"></div>
+    <div class="input-box" id="inputBox">
+      <div class="input-box-editor" id="inputBoxEditor"></div>
+      <div class="input-box-footer">
+        <span class="input-box-hint">Enter to send · Shift+Enter for newline</span>
+        <button class="input-box-send" id="inputBoxSend">Send</button>
+      </div>
+    </div>
   </main>
 
   <div class="resize-handle" id="rightHandle"></div>

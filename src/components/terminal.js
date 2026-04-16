@@ -63,13 +63,7 @@ export function initTerminal() {
       });
     });
 
-    const resizeObserver = new ResizeObserver(() => {
-      try {
-        fitAddon.fit();
-        const dims = fitAddon.proposeDimensions();
-        if (dims) api.terminalResize({ cols: dims.cols, rows: dims.rows });
-      } catch {}
-    });
+    const resizeObserver = new ResizeObserver(() => fitTerminal());
     resizeObserver.observe(container);
 
     // Drag-and-drop: file paths from tree sidebar or external (Finder/Explorer)
@@ -99,6 +93,9 @@ export function initTerminal() {
       e.preventDefault();
       dragCounter = 0;
       terminalPane.classList.remove('drop-active');
+
+      // If the drop target is inside the input box, let its own handler deal with it
+      if (e.target.closest('#inputBox')) return;
 
       // External files from Finder/Explorer
       const files = e.dataTransfer.files;
@@ -144,18 +141,21 @@ function fitTerminalWhenReady(attempt = 0) {
   const container = document.getElementById('terminal');
   if (container && container.clientHeight > 0 && container.clientWidth > 0) {
     fitTerminal();
-    // Still retry a few times — grid dimensions may shift as siblings render
+    // Retry a few times — grid/flex dimensions may shift as siblings render
+    // (e.g. the input box CodeMirror editor mounting below the terminal).
     if (attempt === 0) {
       setTimeout(fitTerminal, 200);
       setTimeout(fitTerminal, 500);
+      setTimeout(fitTerminal, 1000);
     }
     return;
   }
   // Container not visible yet — retry with requestAnimationFrame + fallback timeout
-  if (attempt < 20) {
+  if (attempt < 30) {
     requestAnimationFrame(() => fitTerminalWhenReady(attempt + 1));
   } else {
-    // Final fallback after ~20 frames
+    // Final fallback — try multiple times in case flex siblings are still settling
     setTimeout(fitTerminal, 300);
+    setTimeout(fitTerminal, 800);
   }
 }

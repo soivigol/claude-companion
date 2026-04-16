@@ -42,6 +42,9 @@ contextBridge.exposeInMainWorld('companion', {
   gitPushRepo: (repoName) => ipcRenderer.invoke('git-push-repo', repoName),
   getRemoteInfoRepo: (repoName) => ipcRenderer.invoke('git-get-remote-info-repo', repoName),
 
+  // Claude commands (for autocomplete)
+  getClaudeCommands: () => ipcRenderer.invoke('get-claude-commands'),
+
   // Terminal
   terminalInput: (data) => ipcRenderer.send('terminal-input', data),
   terminalResize: (size) => ipcRenderer.send('terminal-resize', size),

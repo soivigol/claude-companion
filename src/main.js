@@ -12,6 +12,7 @@ import { initSftpModal, refreshSftpControls } from './components/sftp-modal.js';
 import { initSftpSync } from './components/sftp-status.js';
 import { initSidebarTabs } from './components/sidebar-tabs.js';
 import { loadGitPanel } from './components/git-panel.js';
+import { initInputBox, toggleInputBox } from './components/input-box.js';
 
 // Wire file-tree click handler to file-viewer
 setFileSelectHandler(selectFile);
@@ -36,6 +37,15 @@ function init() {
   initSftpModal();
   initSftpSync();
   initSidebarTabs();
+  initInputBox();
+
+  // Global shortcut: Ctrl+I / Cmd+I to toggle input box
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+      e.preventDefault();
+      toggleInputBox();
+    }
+  });
 
   // Welcome screen
   document.getElementById('selectFolderBtn').addEventListener('click', handleSelectFolder);

@@ -15,4 +15,5 @@ export const state = {
   sftpConfigs: [],
   sftpSyncStatus: 'idle',
   sftpConflicts: [],
+  inputBoxVisible: localStorage.getItem('cc-input-box') !== '0',
 };

@@ -1,12 +1,14 @@
 import { state } from '../core/state.js';
 import { term } from './terminal.js';
 import { THEMES } from '../core/themes-data.js';
+import { updateInputBoxTheme } from './input-box.js';
 
 export function applyTheme(themeName) {
   state.theme = themeName;
   localStorage.setItem('cc-theme', themeName);
   document.documentElement.setAttribute('data-theme', themeName);
   term.options.theme = THEMES[themeName].xterm;
+  updateInputBoxTheme(themeName === 'dark');
 
   // Update theme icon
   const btn = document.getElementById('themeToggleBtn');

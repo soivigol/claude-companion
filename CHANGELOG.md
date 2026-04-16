@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.9] - 2026-04-17
+
+### Changed
+- Rich text input is now the primary input — larger by default (120–320px tall, 96px min editor), focused automatically after opening a project
+- Placeholder text updated to highlight `/`, `@`, and `Esc` shortcuts; the footer hint now documents `Esc to focus terminal`
+
+### Fixed
+- Pressing Enter in the rich editor now submits the message directly to Claude Code instead of leaving the text sitting in the prompt — PTY writes are consolidated into a single call so the trailing carriage return is processed as Enter
+- Large or multi-line messages are now wrapped in bracketed paste markers (`\x1b[200~ … \x1b[201~`) so Claude Code treats them as a paste and the submit keystroke fires afterwards
+
 ## [2.2.8] - 2026-04-16
 
 ### Added

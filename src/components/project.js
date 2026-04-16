@@ -6,6 +6,7 @@ import { renderTree, initTreeDrag } from './file-tree.js';
 import { renderStatus } from './status.js';
 import { switchViewerTab, loadChanges } from './viewer.js';
 import { refreshSftpControls } from './sftp-modal.js';
+import { focusInputBox } from './input-box.js';
 
 export async function openProject(folderPath) {
   try {
@@ -58,8 +59,11 @@ export async function openProject(folderPath) {
           // Refresh SFTP controls visibility
           refreshSftpControls();
 
-          // Focus terminal
-          term.focus();
+          if (state.inputBoxVisible) {
+            focusInputBox();
+          } else {
+            term.focus();
+          }
         } catch (err) {
           console.error('[CC] post-open error:', err);
         }

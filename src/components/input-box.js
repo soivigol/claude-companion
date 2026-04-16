@@ -161,12 +161,14 @@ function submitInput() {
   const text = stripControl(editor.state.doc.toString()).trimEnd();
   if (!text) return;
 
-  const lines = text.split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    api.terminalInput(lines[i]);
-    if (i < lines.length - 1) api.terminalInput('\x1b\r');
+  const isLarge = text.includes('\n') || text.length > 200;
+
+  if (isLarge) {
+    api.terminalInput('\x1b[200~' + text + '\x1b[201~');
+    setTimeout(() => api.terminalInput('\r'), 50);
+  } else {
+    api.terminalInput(text + '\r');
   }
-  api.terminalInput('\r');
 
   editor.dispatch({ changes: { from: 0, to: editor.state.doc.length } });
 }
@@ -219,7 +221,7 @@ export function initInputBox() {
     inputBoxKeymap,
     keymap.of([...defaultKeymap, ...historyKeymap, ...completionKeymap]),
     EditorView.lineWrapping,
-    placeholder('Type a message for Claude Code...'),
+    placeholder('Message Claude Code — / for commands, @ for files, Esc for terminal'),
     themeCompartment.of(isDark ? oneDark : inputLightTheme),
     autocompletion({
       override: [slashCompletion, mentionCompletion],

@@ -771,8 +771,8 @@ html, body {
   flex-direction: column;
   border-top: 1px solid var(--border);
   background: var(--bg-panel);
-  min-height: 52px;
-  max-height: 200px;
+  min-height: 120px;
+  max-height: 320px;
 }
 
 .input-box.hidden { display: none; }
@@ -780,7 +780,7 @@ html, body {
 .input-box-editor {
   flex: 1;
   overflow-y: auto;
-  min-height: 32px;
+  min-height: 96px;
 }
 
 .input-box-editor .cm-editor {

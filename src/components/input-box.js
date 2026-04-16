@@ -161,14 +161,12 @@ function submitInput() {
   const text = stripControl(editor.state.doc.toString()).trimEnd();
   if (!text) return;
 
-  const isLarge = text.includes('\n') || text.length > 200;
-
-  if (isLarge) {
-    api.terminalInput('\x1b[200~' + text + '\x1b[201~');
-    setTimeout(() => api.terminalInput('\r'), 50);
-  } else {
-    api.terminalInput(text + '\r');
-  }
+  // Always wrap in bracketed-paste markers and send the trailing CR on a
+  // separate PTY write. Short single-line payloads sent as `text + '\r'` in one
+  // write sometimes land in Claude Code's prompt without firing submit, because
+  // the TUI consumes the '\r' as part of the paste stream rather than as Enter.
+  api.terminalInput('\x1b[200~' + text + '\x1b[201~');
+  setTimeout(() => api.terminalInput('\r'), 50);
 
   editor.dispatch({ changes: { from: 0, to: editor.state.doc.length } });
 }

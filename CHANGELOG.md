@@ -6,6 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.91] - 2026-04-17
+
+### Fixed
+- Pressing Enter in the rich input box now reliably submits every message to Claude Code. Short single-line messages used to land in the prompt without firing submit because the trailing carriage return was consumed as part of the text stream. All messages are now sent via bracketed paste (`\x1b[200~ … \x1b[201~`) with the `\r` on a separate, slightly delayed PTY write so Enter is always recognized as submit
+
 ## [2.2.9] - 2026-04-17
 
 ### Changed

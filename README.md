@@ -8,12 +8,12 @@ A native cross-platform desktop app to pair with [Claude Code](https://claude.ai
 
 | Platform | Download | Notes |
 |----------|----------|-------|
-| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.9/Claude.Companion-2.2.9-arm64.dmg) | M1/M2/M3/M4 |
-| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.9/Claude.Companion-2.2.9.dmg) | Intel Macs |
-| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.9/Claude.Companion.Setup.2.2.9.exe) | Standard installer |
-| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.9/Claude.Companion.2.2.9.exe) | No install required |
-| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.2.9/Claude.Companion-2.2.9.AppImage) | Universal |
-| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.2.9/claude-companion_2.2.9_amd64.deb) | Debian/Ubuntu |
+| macOS (Apple Silicon) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.91/Claude.Companion-2.2.91-arm64.dmg) | M1/M2/M3/M4 |
+| macOS (Intel) | [.dmg](https://github.com/soivigol/claude-companion/releases/download/v2.2.91/Claude.Companion-2.2.91.dmg) | Intel Macs |
+| Windows | [Installer .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.91/Claude.Companion.Setup.2.2.91.exe) | Standard installer |
+| Windows | [Portable .exe](https://github.com/soivigol/claude-companion/releases/download/v2.2.91/Claude.Companion.2.2.91.exe) | No install required |
+| Linux | [.AppImage](https://github.com/soivigol/claude-companion/releases/download/v2.2.91/Claude.Companion-2.2.91.AppImage) | Universal |
+| Linux | [.deb](https://github.com/soivigol/claude-companion/releases/download/v2.2.91/claude-companion_2.2.91_amd64.deb) | Debian/Ubuntu |
 
 [All releases](https://github.com/soivigol/claude-companion/releases)
 
